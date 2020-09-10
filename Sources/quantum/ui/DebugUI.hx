@@ -1,9 +1,12 @@
 package quantum.ui;
 
+import signals.Signal1;
 import zui.Id;
 
 class DebugUI extends BaseUI
 {
+	public var onDebugDrawCheckChanged : Signal1<Bool> = new Signal1<Bool>();
+
 	var _debugDrawCheck = Id.handle();
 
 	public function new()
@@ -19,10 +22,10 @@ class DebugUI extends BaseUI
 			{
 				ui.indent();
 
-				ui.check(_debugDrawCheck, "Debug Draw");
+				var debugDragValue = ui.check(_debugDrawCheck, "Debug Draw");
 				if (_debugDrawCheck.changed)
 				{
-					trace("Debug draw not implemented");
+					onDebugDrawCheckChanged.dispatch(debugDragValue);
 				}
 
 				ui.unindent();

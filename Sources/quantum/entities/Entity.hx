@@ -5,12 +5,13 @@ import haxe.ds.ReadOnlyArray;
 import kha.Color;
 import quantum.partials.IUpdateable;
 import quantum.partials.IRenderable;
+import quantum.partials.ICollideable;
 import kha.graphics2.Graphics;
 import kha.math.FastVector2;
 import kha.math.Vector2;
 import signals.Signal1;
 
-class Entity extends Basic implements IUpdateable implements IRenderable
+class Entity extends Basic implements IUpdateable implements IRenderable implements ICollideable
 {
 	public final onChildAdded : Signal1<Entity> = new Signal1<Entity>();
 	public final onChildRemoved : Signal1<Entity> = new Signal1<Entity>();
@@ -93,6 +94,14 @@ class Entity extends Basic implements IUpdateable implements IRenderable
 		}
 
 		renderChildren(g);
+
+		#if debug
+		var engine = QuantumEngine.engine;
+		if (engine.debugDraw)
+		{
+			drawColliders(g);
+		}
+		#end
 	}
 
 	function renderChildren(g : Graphics)
@@ -102,6 +111,17 @@ class Entity extends Basic implements IUpdateable implements IRenderable
 			child.render(g);
 		}
 	}
+
+	#if debug
+	function drawColliders(g : Graphics)
+	{
+		for (shape in colliders) {}
+
+		g.color = 0xffff0000;
+		g.drawRect(globalX, globalY, 32, 32);
+		g.color = 0xffffffff;
+	}
+	#end
 
 	public function update(dt : Float)
 	{

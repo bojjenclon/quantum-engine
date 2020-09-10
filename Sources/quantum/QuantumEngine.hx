@@ -1,24 +1,18 @@
 package quantum;
 
-import kha.Color;
-import quantum.ui.IUI;
-import kha.Window;
-import zui.Id;
-import kha.Scaler;
-import kha.Image;
-import kha.input.KeyCode;
-import kha.input.Keyboard;
-import quantum.ui.DebugUI;
-import quantum.partials.IUpdateable;
-import quantum.entities.display.Sprite;
-import quantum.entities.display.AnimatedSprite;
-import quantum.scene.Scene;
 import kha.Assets;
-import kha.Scheduler;
-import kha.System;
+import kha.Color;
 import kha.Framebuffer;
+import kha.Image;
+import kha.Scaler;
+import kha.System;
+import kha.input.KeyCode;
+import quantum.entities.display.AnimatedSprite;
+import quantum.entities.display.Sprite;
+import quantum.scene.Scene;
+import quantum.ui.DebugUI;
+import quantum.ui.IUI;
 import signals.Signal1;
-import zui.Zui;
 
 class QuantumEngine
 {
@@ -29,8 +23,13 @@ class QuantumEngine
 	public var width(default, null) : Int = 800;
 	public var height(default, null) : Int = 600;
 
-	public var ui(default, null) : IUI;
 	public var scene(default, set) : Scene;
+
+	#if debug
+	public var debugUI(default, null) : DebugUI;
+
+	public var debugDraw(default, null) : Bool = false;
+	#end
 
 	var _initialized : Bool = false;
 	var _fps : Float = 1 / 60;
@@ -63,7 +62,11 @@ class QuantumEngine
 
 		_timer = new Timer();
 
-		ui = new DebugUI();
+		#if debug
+		debugUI = new DebugUI();
+
+		debugUI.onDebugDrawCheckChanged.add(onDebugDrawCheckChanged);
+		#end
 
 		onResize(System.windowWidth(0), System.windowHeight(0));
 
@@ -148,7 +151,9 @@ class QuantumEngine
 		Scaler.scale(_backBuffer, framebuffer, System.screenRotation);
 		gMain.end();
 
-		ui.render(gMain);
+		#if debug
+		debugUI.render(gMain);
+		#end
 
 		update();
 	}
@@ -162,10 +167,12 @@ class QuantumEngine
 		_accumulator += dt;
 		while (_accumulator >= _fps)
 		{
+			#if debug
 			if (input.justPressed("debugMenu"))
 			{
-				ui.visible = !ui.visible;
+				debugUI.visible = !debugUI.visible;
 			}
+			#end
 
 			if (scene != null)
 			{
@@ -185,7 +192,14 @@ class QuantumEngine
 
 		var scaleRect = Scaler.targetRect(width, height, _winWidth, _winHeight, System.screenRotation);
 
-		ui.scale(scaleRect.scaleFactor);
+		#if debug
+		debugUI.scale(scaleRect.scaleFactor);
+		#end
+	}
+
+	function onDebugDrawCheckChanged(value : Bool)
+	{
+		debugDraw = value;
 	}
 
 	function set_scene(value : Scene) : Scene
