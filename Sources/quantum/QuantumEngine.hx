@@ -51,8 +51,14 @@ class QuantumEngine
 
 		sprite = new Sprite("tex");
 		sprite.x = 64;
+		sprite.y = 32;
 		sprite.scale.x = 4;
 		sprite.scale.y = 2;
+
+		var sub = new Sprite("tex");
+		sub.x = 64;
+		sub.y = 96;
+		sprite.addChild(sub);
 
 		anim = new AnimatedSprite("player", 32, 32);
 		anim.x = 128;

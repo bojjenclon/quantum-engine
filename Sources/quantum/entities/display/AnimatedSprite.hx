@@ -13,7 +13,7 @@ typedef Animation =
 	var finished : Bool;
 }
 
-class AnimatedSprite extends Sprite implements IUpdateable
+class AnimatedSprite extends Sprite
 {
 	public final onAnimationChanged : Signal1<String> = new Signal1<String>();
 	public final onAnimationFinished : Signal1<String> = new Signal1<String>();
@@ -46,6 +46,11 @@ class AnimatedSprite extends Sprite implements IUpdateable
 
 	override public function render(g : Graphics)
 	{
+		if (!visible)
+		{
+			return;
+		}
+
 		var center = new FastVector2(scaledWidth / 2, scaledHeight / 2);
 		var rad = Math.PI / 180 * rotation;
 
@@ -54,13 +59,61 @@ class AnimatedSprite extends Sprite implements IUpdateable
 		var sy = Math.floor(currentFrame / _horizontalFrames) * frameHeight;
 
 		// Rotate about the origin
-		g.pushRotation(rad, x + center.x, y + center.y);
+		g.pushRotation(rad, globalX + center.x, globalY + center.y);
 		g.pushOpacity(alpha);
 
-		g.drawScaledSubImage(_image, sx, sy, frameWidth, frameHeight, x, y, scaledWidth, scaledHeight);
+		g.drawScaledSubImage(_image, sx, sy, frameWidth, frameHeight, globalX, globalY, scaledWidth, scaledHeight);
 
 		g.popOpacity();
 		g.popTransformation();
+
+		renderChildren(g);
+	}
+
+	override public function update(dt : Float)
+	{
+		if (!active)
+		{
+			return;
+		}
+		else if (currentAnimation == null || currentAnimation == "")
+		{
+			return;
+		}
+		else if (!isPlaying)
+		{
+			return;
+		}
+
+		var anim = animations[currentAnimation];
+		var totalFrames = anim.frames.length;
+
+		if (anim.finished)
+		{
+			return;
+		}
+
+		_timeOnFrame += dt;
+		if (_timeOnFrame >= anim.speed)
+		{
+			_animFrame++;
+			if (_animFrame >= totalFrames)
+			{
+				_animFrame = anim.loop ? _animFrame % totalFrames : totalFrames - 1;
+				anim.finished = !anim.loop;
+
+				if (anim.finished)
+				{
+					onAnimationFinished.dispatch(currentAnimation);
+				}
+			}
+
+			currentFrame = anim.frames[_animFrame];
+
+			_timeOnFrame = 0;
+		}
+
+		super.update(dt);
 	}
 
 	public function addAnimation(name : String, frames : Array<Int>, speed : Float = 0.1, loop : Bool = true)
@@ -101,46 +154,6 @@ class AnimatedSprite extends Sprite implements IUpdateable
 	public function pause()
 	{
 		isPlaying = false;
-	}
-
-	public function update(dt : Float)
-	{
-		if (currentAnimation == null || currentAnimation == "")
-		{
-			return;
-		}
-		else if (!isPlaying)
-		{
-			return;
-		}
-
-		var anim = animations[currentAnimation];
-		var totalFrames = anim.frames.length;
-
-		if (anim.finished)
-		{
-			return;
-		}
-
-		_timeOnFrame += dt;
-		if (_timeOnFrame >= anim.speed)
-		{
-			_animFrame++;
-			if (_animFrame >= totalFrames)
-			{
-				_animFrame = anim.loop ? _animFrame % totalFrames : totalFrames - 1;
-				anim.finished = !anim.loop;
-
-				if (anim.finished)
-				{
-					onAnimationFinished.dispatch(currentAnimation);
-				}
-			}
-
-			currentFrame = anim.frames[_animFrame];
-
-			_timeOnFrame = 0;
-		}
 	}
 
 	override function get_width() : Int

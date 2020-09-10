@@ -6,7 +6,7 @@ import kha.Assets;
 import kha.Image;
 import quantum.entities.display.IRenderable;
 
-class Sprite extends Entity implements IRenderable
+class Sprite extends Entity
 {
 	public var width(get, never) : Int;
 	public var height(get, never) : Int;
@@ -23,18 +23,25 @@ class Sprite extends Entity implements IRenderable
 		_image = Assets.images.get(imageName);
 	}
 
-	public function render(g : Graphics)
+	override public function render(g : Graphics)
 	{
+		if (!visible)
+		{
+			return;
+		}
+
 		var center = new FastVector2(scaledWidth / 2, scaledHeight / 2);
 		var rad = Math.PI / 180 * rotation;
 
-		g.pushRotation(rad, x + center.x, y + center.y);
+		g.pushRotation(rad, globalX + center.x, globalY + center.y);
 		g.pushOpacity(alpha);
 
-		g.drawScaledImage(_image, x, y, scaledWidth, scaledHeight);
+		g.drawScaledImage(_image, globalX, globalY, scaledWidth, scaledHeight);
 
 		g.popOpacity();
 		g.popTransformation();
+
+		renderChildren(g);
 	}
 
 	function get_width() : Int
