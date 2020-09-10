@@ -5,7 +5,7 @@ import kha.graphics2.Graphics;
 
 interface IUI
 {
-	public var visible : Bool;
+	public var visible(default, set) : Bool;
 	public var ui(default, null) : Zui;
 
 	public function render(g : Graphics) : Void;

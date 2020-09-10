@@ -7,7 +7,7 @@ import kha.graphics2.Graphics;
 
 class BaseUI implements IUI
 {
-	public var visible : Bool = false;
+	public var visible(default, set) : Bool = false;
 	public var ui(default, null) : Zui;
 
 	var _hwin : Dynamic;
@@ -15,7 +15,8 @@ class BaseUI implements IUI
 	private function new()
 	{
 		ui = new Zui({
-			font: Assets.fonts._8_bit_hud
+			font: Assets.fonts._8_bit_hud,
+			autoNotifyInput: false
 		});
 
 		_hwin = Id.handle();
@@ -41,5 +42,19 @@ class BaseUI implements IUI
 
 		// Force redraw
 		_hwin.redraws = 1;
+	}
+
+	function set_visible(value : Bool) : Bool
+	{
+		if (value)
+		{
+			ui.registerInput();
+		}
+		else
+		{
+			ui.unregisterInput();
+		}
+
+		return visible = value;
 	}
 }

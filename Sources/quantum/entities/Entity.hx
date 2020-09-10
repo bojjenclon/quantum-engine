@@ -1,5 +1,7 @@
 package quantum.entities;
 
+import differ.shapes.Polygon;
+import differ.shapes.Circle;
 import differ.shapes.Shape;
 import haxe.ds.ReadOnlyArray;
 import kha.Color;
@@ -93,8 +95,6 @@ class Entity extends Basic implements IUpdateable implements IRenderable impleme
 			return;
 		}
 
-		renderChildren(g);
-
 		#if debug
 		var engine = QuantumEngine.engine;
 		if (engine.debugDraw)
@@ -102,6 +102,8 @@ class Entity extends Basic implements IUpdateable implements IRenderable impleme
 			drawColliders(g);
 		}
 		#end
+
+		renderChildren(g);
 	}
 
 	function renderChildren(g : Graphics)
@@ -115,11 +117,50 @@ class Entity extends Basic implements IUpdateable implements IRenderable impleme
 	#if debug
 	function drawColliders(g : Graphics)
 	{
-		for (shape in colliders) {}
+		g.color = Color.Red;
 
-		g.color = 0xffff0000;
-		g.drawRect(globalX, globalY, 32, 32);
-		g.color = 0xffffffff;
+		for (shape in colliders)
+		{
+			if (Std.is(shape, Circle))
+			{
+				var circle = cast(shape, Circle);
+				var radius = circle.transformedRadius;
+
+				var segments = 20;
+				var step = 2 * Math.PI / segments;
+				// Start at the second point since our draw uses the
+				// previous and current points for each line.
+				var theta = step;
+
+				while (theta <= 2 * Math.PI)
+				{
+					var x1 = circle.x + radius * Math.cos(theta - step);
+					var y1 = circle.y + radius * Math.sin(theta - step);
+
+					var x2 = circle.x + radius * Math.cos(theta);
+					var y2 = circle.y + radius * Math.sin(theta);
+
+					g.drawLine(x1, y1, x2, y2);
+
+					theta += step;
+				}
+			}
+			else if (Std.is(shape, Polygon))
+			{
+				var polygon = cast(shape, Polygon);
+				var vertices = polygon.transformedVertices;
+
+				for (i in 0...vertices.length)
+				{
+					var v1 = vertices[i];
+					var v2 = vertices[(i + 1) % vertices.length];
+
+					g.drawLine(v1.x, v1.y, v2.x, v2.y);
+				}
+			}
+		}
+
+		g.color = Color.Black;
 	}
 	#end
 
@@ -157,6 +198,11 @@ class Entity extends Basic implements IUpdateable implements IRenderable impleme
 		children.remove(child);
 
 		onChildRemoved.dispatch(child);
+	}
+
+	public function addCollider(collider : Shape)
+	{
+		_colliders.push(collider);
 	}
 
 	override public function serialize() : String

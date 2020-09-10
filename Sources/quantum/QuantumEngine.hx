@@ -1,5 +1,7 @@
 package quantum;
 
+import differ.shapes.Circle;
+import differ.shapes.Polygon;
 import kha.Assets;
 import kha.Color;
 import kha.Framebuffer;

@@ -43,6 +43,14 @@ class Sprite extends Entity
 		g.popOpacity();
 		g.popTransformation();
 
+		#if debug
+		var engine = QuantumEngine.engine;
+		if (engine.debugDraw)
+		{
+			drawColliders(g);
+		}
+		#end
+
 		renderChildren(g);
 	}
 
