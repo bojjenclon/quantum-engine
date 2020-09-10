@@ -1,5 +1,6 @@
 package quantum;
 
+import quantum.display.IRenderable;
 import kha.Scaler;
 import kha.Image;
 import kha.input.KeyCode;
@@ -24,6 +25,7 @@ class QuantumEngine
 	var _backBuffer : Image;
 	var _timer : Timer;
 
+	final _renderables : Array<IRenderable> = new Array<IRenderable>();
 	final _updateables : Array<IUpdateable> = new Array<IUpdateable>();
 
 	var sprite : Sprite;
@@ -62,6 +64,9 @@ class QuantumEngine
 		anim.addAnimation("air", [10], 0, false);
 		anim.play("run");
 
+		_renderables.push(sprite);
+		_renderables.push(anim);
+
 		_updateables.push(anim);
 
 		var keyboard = Keyboard.get();
@@ -84,8 +89,10 @@ class QuantumEngine
 
 		gBuffer.begin();
 
-		sprite.render(gBuffer);
-		anim.render(gBuffer);
+		for (entity in _renderables)
+		{
+			entity.render(gBuffer);
+		}
 
 		gBuffer.end();
 
