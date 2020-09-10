@@ -5,7 +5,7 @@ import kha.graphics2.Graphics;
 import kha.math.Vector2;
 import signals.Signal1;
 
-class Entity implements IUpdateable implements IRenderable
+class Entity extends Basic implements IUpdateable implements IRenderable
 {
 	public final onChildAdded : Signal1<Entity> = new Signal1<Entity>();
 	public final onChildRemoved : Signal1<Entity> = new Signal1<Entity>();

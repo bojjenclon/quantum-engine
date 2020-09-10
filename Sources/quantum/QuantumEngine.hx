@@ -1,32 +1,35 @@
 package quantum;
 
-import quantum.entities.display.IRenderable;
 import kha.Scaler;
 import kha.Image;
 import kha.input.KeyCode;
 import kha.input.Keyboard;
+import quantum.entities.display.IRenderable;
 import quantum.entities.display.Sprite;
 import quantum.entities.display.AnimatedSprite;
+import quantum.scene.Scene;
 import kha.Assets;
 import kha.Scheduler;
 import kha.System;
 import kha.Framebuffer;
+import signals.Signal1;
 
 class QuantumEngine
 {
 	public static final engine : QuantumEngine = new QuantumEngine();
 
+	public final onSceneChanged : Signal1<Scene> = new Signal1<Scene>();
+
 	public var width(default, null) : Int = 800;
 	public var height(default, null) : Int = 600;
+
+	public var scene(default, set) : Scene;
 
 	var _initialized : Bool = false;
 	var _fps : Float = 1 / 60;
 	var _accumulator : Float = 0;
 	var _backBuffer : Image;
 	var _timer : Timer;
-
-	final _renderables : Array<IRenderable> = new Array<IRenderable>();
-	final _updateables : Array<IUpdateable> = new Array<IUpdateable>();
 
 	var sprite : Sprite;
 	var anim : AnimatedSprite;
@@ -70,10 +73,9 @@ class QuantumEngine
 		anim.addAnimation("air", [10], 0, false);
 		anim.play("run");
 
-		_renderables.push(sprite);
-		_renderables.push(anim);
-
-		_updateables.push(anim);
+		scene = new Scene();
+		scene.addChild(sprite);
+		scene.addChild(anim);
 
 		var keyboard = Keyboard.get();
 		keyboard.notify(onKeyDown, onKeyUp);
@@ -95,9 +97,9 @@ class QuantumEngine
 
 		gBuffer.begin();
 
-		for (entity in _renderables)
+		if (scene != null)
 		{
-			entity.render(gBuffer);
+			scene.render(gBuffer);
 		}
 
 		gBuffer.end();
@@ -119,9 +121,9 @@ class QuantumEngine
 		_accumulator += dt;
 		while (_accumulator >= _fps)
 		{
-			for (entity in _updateables)
+			if (scene != null)
 			{
-				entity.update(dt);
+				scene.update(dt);
 			}
 
 			_accumulator -= _fps;
@@ -141,5 +143,14 @@ class QuantumEngine
 			sprite.rotation += 5;
 			anim.rotation += 5;
 		}
+	}
+
+	function set_scene(value : Scene) : Scene
+	{
+		scene = value;
+
+		onSceneChanged.dispatch(scene);
+
+		return scene;
 	}
 }
