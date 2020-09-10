@@ -14,8 +14,6 @@ class Sprite extends Entity
 	public var scaledWidth(get, never) : Float;
 	public var scaledHeight(get, never) : Float;
 
-	var adjustedAlpha(get, never) : Float;
-
 	var _image : Image;
 
 	public function new(imageName : String)
@@ -34,7 +32,7 @@ class Sprite extends Entity
 		var rad = Math.PI / 180 * rotation;
 
 		g.pushRotation(rad, globalX + center.x, globalY + center.y);
-		g.pushOpacity(adjustedAlpha);
+		g.pushOpacity(trueAlpha);
 
 		renderSelf(g);
 
@@ -61,21 +59,11 @@ class Sprite extends Entity
 
 	function get_scaledWidth() : Float
 	{
-		return width * scale.x;
+		return width * trueScale.x;
 	}
 
 	function get_scaledHeight() : Float
 	{
-		return height * scale.y;
-	}
-
-	function get_adjustedAlpha() : Float
-	{
-		if (parent == null)
-		{
-			return alpha;
-		}
-
-		return parent.alpha * alpha;
+		return height * trueScale.y;
 	}
 }

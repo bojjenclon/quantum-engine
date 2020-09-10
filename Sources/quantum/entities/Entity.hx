@@ -37,9 +37,31 @@ class Entity extends Basic implements IUpdateable implements IRenderable
 	 */
 	public var globalY(get, never) : Float;
 
+	/**
+	 * This entity's rotation, independent of the parent's.
+	 */
 	public var rotation(default, set) : Float = 0;
+	/**
+	 * This entity's alpha, independent of the parent's.
+	 */
 	public var alpha(default, set) : Float = 1;
+	/**
+	 * This entity's scale, independent of the parent's.
+	 */
 	public var scale : FastVector2 = new FastVector2(1, 1);
+
+	/**
+	 * Rotation relative to parent.
+	 */
+	public var trueRotation(get, never) : Float;
+	/**
+	 * Alpha relative to parent.
+	 */
+	public var trueAlpha(get, never) : Float;
+	/**
+	 * Scale relative to parent.
+	 */
+	public var trueScale(get, never) : FastVector2;
 
 	/**
 	 * Determines if this entity will be updated.
@@ -176,5 +198,35 @@ class Entity extends Basic implements IUpdateable implements IRenderable
 		}
 
 		return alpha;
+	}
+
+	function get_trueRotation() : Float
+	{
+		if (parent == null)
+		{
+			return rotation;
+		}
+
+		return parent.rotation + rotation;
+	}
+
+	function get_trueAlpha() : Float
+	{
+		if (parent == null)
+		{
+			return alpha;
+		}
+
+		return parent.alpha * alpha;
+	}
+
+	function get_trueScale() : FastVector2
+	{
+		if (parent == null)
+		{
+			return scale;
+		}
+
+		return new FastVector2(parent.scale.x * scale.x, parent.scale.y * scale.y);
 	}
 }
