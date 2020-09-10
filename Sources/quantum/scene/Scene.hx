@@ -33,6 +33,8 @@ class Scene
 		}
 
 		onChildAdded.dispatch(child);
+
+		trace(child.hash());
 	}
 
 	public function removeChild(child : Basic)
@@ -56,7 +58,7 @@ class Scene
 	{
 		return _children.filter(function(child : Basic)
 		{
-			return child.tags.indexOf(tag) > -1;
+			return child.tags.has(tag);
 		});
 	}
 

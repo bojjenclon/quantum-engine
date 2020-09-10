@@ -1,5 +1,6 @@
 package quantum.entities;
 
+import haxe.crypto.Md5;
 import quantum.entities.display.IRenderable;
 import kha.graphics2.Graphics;
 import kha.math.FastVector2;
@@ -127,6 +128,20 @@ class Entity extends Basic implements IUpdateable implements IRenderable
 		children.remove(child);
 
 		onChildRemoved.dispatch(child);
+	}
+
+	override public function serialize() : String
+	{
+		var buf = new StringBuf();
+
+		buf.add(super.serialize());
+
+		buf.add(',Position=($x, $y)');
+		buf.add(',Rotation=$rotation');
+		buf.add(',Alpha=$alpha');
+		buf.add(',Scale=(${scale.x}, ${scale.y})');
+
+		return buf.toString();
 	}
 
 	function get_x() : Float

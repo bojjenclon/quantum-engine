@@ -139,6 +139,27 @@ class AnimatedSprite extends Sprite
 		isPlaying = false;
 	}
 
+	override public function serialize() : String
+	{
+		var buf = new StringBuf();
+
+		buf.add(super.serialize());
+
+		buf.add(',FrameWidth=$frameWidth');
+		buf.add(',FrameHeight=$frameHeight');
+		buf.add(',CurrentFrame=$currentFrame');
+		buf.add(',CurrentAnimation=$currentAnimation');
+
+		var animationsString = [];
+		for (anim in animations)
+		{
+			animationsString.push('"${anim.name}"');
+		}
+		buf.add(',Animations=[${animationsString.join(",")}]');
+
+		return buf.toString();
+	}
+
 	override function get_width() : Int
 	{
 		return frameWidth;

@@ -47,6 +47,18 @@ class Sprite extends Entity
 		g.drawScaledImage(_image, globalX, globalY, scaledWidth, scaledHeight);
 	}
 
+	override public function serialize() : String
+	{
+		var buf = new StringBuf();
+
+		buf.add(super.serialize());
+
+		buf.add(',Width=$width');
+		buf.add(',Height=$height');
+
+		return buf.toString();
+	}
+
 	function get_width() : Int
 	{
 		return _image.width;

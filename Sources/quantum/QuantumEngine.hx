@@ -62,7 +62,7 @@ class QuantumEngine
 		var sub = new Sprite("tex");
 		sub.x = 64;
 		sub.y = 96;
-		sub.alpha = 0.5; // Equates to 0.5 * 0.5
+		sub.alpha = 0.5;
 		sprite.addChild(sub);
 
 		anim = new AnimatedSprite("player", 32, 32);
