@@ -3,9 +3,13 @@ package quantum.entities;
 import quantum.entities.display.IRenderable;
 import kha.graphics2.Graphics;
 import kha.math.Vector2;
+import signals.Signal1;
 
 class Entity implements IUpdateable implements IRenderable
 {
+	public final onChildAdded : Signal1<Entity> = new Signal1<Entity>();
+	public final onChildRemoved : Signal1<Entity> = new Signal1<Entity>();
+
 	public var position : Vector2 = new Vector2(0, 0);
 	public var x(get, set) : Float;
 	public var y(get, set) : Float;
@@ -60,6 +64,17 @@ class Entity implements IUpdateable implements IRenderable
 		child.parent = this;
 
 		children.push(child);
+
+		onChildAdded.dispatch(child);
+	}
+
+	public function removeChild(child : Entity)
+	{
+		child.parent = null;
+
+		children.remove(child);
+
+		onChildRemoved.dispatch(child);
 	}
 
 	function get_x() : Float
