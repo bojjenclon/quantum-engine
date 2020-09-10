@@ -29,7 +29,7 @@ class Sprite extends Entity
 		}
 
 		var center = new FastVector2(scaledWidth / 2, scaledHeight / 2);
-		var rad = Math.PI / 180 * rotation;
+		var rad = Math.PI / 180 * trueRotation;
 
 		g.pushRotation(rad, globalX + center.x, globalY + center.y);
 		g.pushOpacity(trueAlpha);
