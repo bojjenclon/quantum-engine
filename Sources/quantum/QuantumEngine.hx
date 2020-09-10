@@ -1,5 +1,7 @@
 package quantum;
 
+import kha.Scaler;
+import kha.Image;
 import kha.input.KeyCode;
 import kha.input.Keyboard;
 import quantum.display.Sprite;
@@ -13,52 +15,104 @@ class QuantumEngine
 {
 	public static final engine : QuantumEngine = new QuantumEngine();
 
-	var _fps = 1 / 60;
+	public var width(default, null) : Int = 800;
+	public var height(default, null) : Int = 600;
+
+	var _initialized : Bool = false;
+	var _fps : Float = 1 / 60;
+	var _accumulator : Float = 0;
+	var _backBuffer : Image;
+	var _timer : Timer;
+
+	final _updateables : Array<IUpdateable> = new Array<IUpdateable>();
+
 	var sprite : Sprite;
 	var anim : AnimatedSprite;
 
 	private function new() {}
 
-	public function initialize()
+	public function initialize(width : Int = 800, height : Int = 600)
 	{
-		Assets.loadEverything(function()
+		this.width = width;
+		this.height = height;
+
+		Assets.loadEverything(loadingFinished);
+	}
+
+	function loadingFinished()
+	{
+		_initialized = true;
+
+		_backBuffer = Image.createRenderTarget(width, height);
+
+		_timer = new Timer();
+
+		sprite = new Sprite("tex");
+		sprite.x = 64;
+		sprite.scale.x = 4;
+		sprite.scale.y = 2;
+
+		anim = new AnimatedSprite("player", 32, 32);
+		anim.x = 128;
+		anim.y = 256;
+
+		anim.addAnimation("idle", [0], 0, false);
+		anim.addAnimation("run", [1, 2, 3, 4], 0.15, true);
+		anim.addAnimation("jump", [5, 6, 7, 8, 9], 0.15, false);
+		anim.addAnimation("air", [10], 0, false);
+		anim.play("idle");
+
+		_updateables.push(anim);
+
+		var keyboard = Keyboard.get();
+		keyboard.notify(onKeyDown, onKeyUp);
+
+		System.notifyOnFrames(function(framebuffers)
 		{
-			sprite = new Sprite("tex");
-			sprite.x = 64;
-			sprite.scale.x = 4;
-			sprite.scale.y = 2;
-
-			anim = new AnimatedSprite("player", 32, 32);
-			anim.x = 128;
-			anim.y = 256;
-
-			var keyboard = Keyboard.get();
-			keyboard.notify(onKeyDown, onKeyUp);
-
-			Scheduler.addTimeTask(function()
-			{
-				update();
-			}, 0, _fps);
-
-			System.notifyOnFrames(function(framebuffers)
-			{
-				render(framebuffers[0]);
-			});
+			render(framebuffers[0]);
 		});
 	}
 
-	function update() {}
-
 	function render(framebuffer : Framebuffer)
 	{
-		var g = framebuffer.g2;
+		if (!_initialized)
+		{
+			return;
+		}
 
-		g.begin();
+		var gBuffer = _backBuffer.g2;
 
-		sprite.render(g);
-		anim.render(g);
+		gBuffer.begin();
 
-		g.end();
+		sprite.render(gBuffer);
+		anim.render(gBuffer);
+
+		gBuffer.end();
+
+		var gMain = framebuffer.g2;
+
+		gMain.begin();
+		Scaler.scale(_backBuffer, framebuffer, System.screenRotation);
+		gMain.end();
+
+		update();
+	}
+
+	function update()
+	{
+		var dt = _timer.update();
+
+		// https://gafferongames.com/post/fix_your_timestep/
+		_accumulator += dt;
+		while (_accumulator >= _fps)
+		{
+			for (entity in _updateables)
+			{
+				entity.update(dt);
+			}
+
+			_accumulator -= _fps;
+		}
 	}
 
 	function onKeyDown(keyCode : KeyCode) {}
