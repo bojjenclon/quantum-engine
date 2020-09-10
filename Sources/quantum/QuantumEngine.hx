@@ -79,8 +79,11 @@ class QuantumEngine
 		scene.addChild(sprite);
 		scene.addChild(anim);
 
-		var keyboard = Keyboard.get();
-		keyboard.notify(onKeyDown, onKeyUp);
+		var input = Input.instance;
+		input.initialize();
+		input.register("exit", KeyCode.Escape);
+		input.register("left", KeyCode.Left);
+		input.register("left", KeyCode.A);
 
 		System.notifyOnFrames(function(framebuffers)
 		{
@@ -118,6 +121,7 @@ class QuantumEngine
 	function update()
 	{
 		var dt = _timer.update();
+		var input = Input.instance;
 
 		// https://gafferongames.com/post/fix_your_timestep/
 		_accumulator += dt;
@@ -128,22 +132,9 @@ class QuantumEngine
 				scene.update(dt);
 			}
 
+			input.update();
+
 			_accumulator -= _fps;
-		}
-	}
-
-	function onKeyDown(keyCode : KeyCode) {}
-
-	function onKeyUp(keyCode : KeyCode)
-	{
-		if (keyCode == KeyCode.One)
-		{
-			anim.currentFrame++;
-		}
-		else if (keyCode == KeyCode.Two)
-		{
-			sprite.rotation += 5;
-			anim.rotation += 5;
 		}
 	}
 

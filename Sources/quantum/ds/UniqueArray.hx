@@ -21,7 +21,7 @@ private class UniqueArrayIterator<V>
 
 	public function next() : V
 	{
-		return _array.get(_idx);
+		return _array.get(_idx++);
 	}
 }
 
