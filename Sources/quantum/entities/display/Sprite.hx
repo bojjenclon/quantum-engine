@@ -18,6 +18,8 @@ class Sprite extends Entity
 
 	public function new(imageName : String)
 	{
+		super();
+
 		_image = Assets.images.get(imageName);
 	}
 
