@@ -1,9 +1,13 @@
 package quantum;
 
+import quantum.ui.IUI;
+import kha.Window;
+import zui.Id;
 import kha.Scaler;
 import kha.Image;
 import kha.input.KeyCode;
 import kha.input.Keyboard;
+import quantum.ui.DebugUI;
 import quantum.entities.display.IRenderable;
 import quantum.entities.display.Sprite;
 import quantum.entities.display.AnimatedSprite;
@@ -13,6 +17,7 @@ import kha.Scheduler;
 import kha.System;
 import kha.Framebuffer;
 import signals.Signal1;
+import zui.Zui;
 
 class QuantumEngine
 {
@@ -23,6 +28,7 @@ class QuantumEngine
 	public var width(default, null) : Int = 800;
 	public var height(default, null) : Int = 600;
 
+	public var ui(default, null) : IUI;
 	public var scene(default, set) : Scene;
 
 	var _initialized : Bool = false;
@@ -33,6 +39,10 @@ class QuantumEngine
 
 	var sprite : Sprite;
 	var anim : AnimatedSprite;
+
+	// Hack until notifyOnResize works for all targets
+	var _winWidth : Int;
+	var _winHeight : Int;
 
 	private function new() {}
 
@@ -51,6 +61,10 @@ class QuantumEngine
 		_backBuffer = Image.createRenderTarget(width, height);
 
 		_timer = new Timer();
+
+		ui = new DebugUI();
+
+		onResize(System.windowWidth(0), System.windowHeight(0));
 
 		sprite = new Sprite("tex");
 		sprite.x = 64;
@@ -81,9 +95,16 @@ class QuantumEngine
 
 		var input = Input.instance;
 		input.initialize();
+		input.register("debugMenu", KeyCode.BackQuote);
 		input.register("exit", KeyCode.Escape);
 		input.register("left", KeyCode.Left);
 		input.register("left", KeyCode.A);
+
+		// Doesn't currently work for all targets, so
+		// for now we use a hack.
+		// Window
+		// 	.get(0)
+		// 	.notifyOnResize(onResize);
 
 		System.notifyOnFrames(function(framebuffers)
 		{
@@ -96,6 +117,15 @@ class QuantumEngine
 		if (!_initialized)
 		{
 			return;
+		}
+
+		// Resize hack until notifyOnResize works on all targets
+		var curWinWidth = System.windowWidth(0);
+		var curWinHeight = System.windowHeight(0);
+
+		if (curWinWidth != _winWidth || curWinHeight != _winHeight)
+		{
+			onResize(curWinWidth, curWinHeight);
 		}
 
 		var gBuffer = _backBuffer.g2;
@@ -115,6 +145,8 @@ class QuantumEngine
 		Scaler.scale(_backBuffer, framebuffer, System.screenRotation);
 		gMain.end();
 
+		ui.render(gMain);
+
 		update();
 	}
 
@@ -127,6 +159,11 @@ class QuantumEngine
 		_accumulator += dt;
 		while (_accumulator >= _fps)
 		{
+			if (input.justPressed("debugMenu"))
+			{
+				ui.visible = !ui.visible;
+			}
+
 			if (scene != null)
 			{
 				scene.update(dt);
@@ -136,6 +173,16 @@ class QuantumEngine
 
 			_accumulator -= _fps;
 		}
+	}
+
+	function onResize(windowWidth : Int, windowHeight : Int)
+	{
+		_winWidth = windowWidth;
+		_winHeight = windowHeight;
+
+		var scaleRect = Scaler.targetRect(width, height, _winWidth, _winHeight, System.screenRotation);
+
+		ui.scale(scaleRect.scaleFactor);
 	}
 
 	function set_scene(value : Scene) : Scene

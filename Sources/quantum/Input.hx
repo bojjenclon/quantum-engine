@@ -44,6 +44,17 @@ class Input
 		map.add(key);
 	}
 
+	public function unregister(name : String, key : KeyCode)
+	{
+		if (!_mappings.exists(name))
+		{
+			return;
+		}
+
+		var map = _mappings.get(name);
+		map.remove(key);
+	}
+
 	public function isDown(name : String) : Bool
 	{
 		if (!_mappings.exists(name))
