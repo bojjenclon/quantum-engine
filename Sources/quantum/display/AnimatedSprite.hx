@@ -25,6 +25,7 @@ class AnimatedSprite extends Sprite implements IUpdateable
 
 	public final animations : Map<String, Animation> = new Map<String, Animation>();
 	public var currentAnimation(default, null) : String;
+	public var isPlaying : Bool = true;
 
 	var _horizontalFrames : Int = 0;
 	var _verticalFrames : Int = 0;
@@ -87,12 +88,28 @@ class AnimatedSprite extends Sprite implements IUpdateable
 		var anim = animations[currentAnimation];
 		currentFrame = anim.frames[_animFrame];
 
+		isPlaying = true;
+
 		onAnimationChanged.dispatch(currentAnimation);
+	}
+
+	public function resume()
+	{
+		isPlaying = true;
+	}
+
+	public function pause()
+	{
+		isPlaying = false;
 	}
 
 	public function update(dt : Float)
 	{
 		if (currentAnimation == null || currentAnimation == "")
+		{
+			return;
+		}
+		else if (!isPlaying)
 		{
 			return;
 		}

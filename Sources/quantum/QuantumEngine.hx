@@ -60,7 +60,7 @@ class QuantumEngine
 		anim.addAnimation("run", [1, 2, 3, 4], 0.15, true);
 		anim.addAnimation("jump", [5, 6, 7, 8, 9], 0.15, false);
 		anim.addAnimation("air", [10], 0, false);
-		anim.play("idle");
+		anim.play("run");
 
 		_updateables.push(anim);
 
