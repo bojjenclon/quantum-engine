@@ -9,7 +9,7 @@ import kha.Image;
 import kha.input.KeyCode;
 import kha.input.Keyboard;
 import quantum.ui.DebugUI;
-import quantum.entities.display.IRenderable;
+import quantum.partials.IUpdateable;
 import quantum.entities.display.Sprite;
 import quantum.entities.display.AnimatedSprite;
 import quantum.scene.Scene;

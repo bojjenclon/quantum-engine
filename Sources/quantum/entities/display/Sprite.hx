@@ -5,7 +5,6 @@ import kha.math.FastVector2;
 import kha.graphics2.Graphics;
 import kha.Assets;
 import kha.Image;
-import quantum.entities.display.IRenderable;
 
 class Sprite extends Entity
 {

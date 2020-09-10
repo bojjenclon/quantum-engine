@@ -1,6 +1,7 @@
 package quantum.entities;
 
-import quantum.entities.display.IRenderable;
+import quantum.partials.IRenderable;
+import quantum.partials.IUpdateable;
 import kha.graphics2.Graphics;
 
 private class EntityGroupIterator

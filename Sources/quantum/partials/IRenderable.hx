@@ -1,4 +1,4 @@
-package quantum.entities.display;
+package quantum.partials;
 
 import kha.graphics2.Graphics;
 

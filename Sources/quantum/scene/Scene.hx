@@ -1,9 +1,10 @@
 package quantum.scene;
 
+import kha.graphics2.Graphics;
 import kha.Color;
 import haxe.ds.ReadOnlyArray;
-import kha.graphics2.Graphics;
-import quantum.entities.display.IRenderable;
+import quantum.partials.IRenderable;
+import quantum.partials.IUpdateable;
 import signals.Signal1;
 
 class Scene

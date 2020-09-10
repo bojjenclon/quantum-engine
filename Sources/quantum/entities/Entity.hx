@@ -1,8 +1,10 @@
 package quantum.entities;
 
+import differ.shapes.Shape;
+import haxe.ds.ReadOnlyArray;
 import kha.Color;
-import haxe.crypto.Md5;
-import quantum.entities.display.IRenderable;
+import quantum.partials.IUpdateable;
+import quantum.partials.IRenderable;
 import kha.graphics2.Graphics;
 import kha.math.FastVector2;
 import kha.math.Vector2;
@@ -66,6 +68,10 @@ class Entity extends Basic implements IUpdateable implements IRenderable
 	public var trueScale(get, never) : FastVector2;
 
 	public var color : Color = Color.White;
+
+	public var colliders(get, never) : ReadOnlyArray<Shape>;
+
+	var _colliders : Array<Shape> = [];
 
 	/**
 	 * Determines if this entity will be updated.
@@ -246,5 +252,10 @@ class Entity extends Basic implements IUpdateable implements IRenderable
 		}
 
 		return new FastVector2(parent.scale.x * scale.x, parent.scale.y * scale.y);
+	}
+
+	function get_colliders() : ReadOnlyArray<Shape>
+	{
+		return _colliders;
 	}
 }
