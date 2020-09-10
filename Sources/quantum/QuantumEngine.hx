@@ -1,12 +1,12 @@
 package quantum;
 
-import quantum.display.IRenderable;
+import quantum.entities.display.IRenderable;
 import kha.Scaler;
 import kha.Image;
 import kha.input.KeyCode;
 import kha.input.Keyboard;
-import quantum.display.Sprite;
-import quantum.display.AnimatedSprite;
+import quantum.entities.display.Sprite;
+import quantum.entities.display.AnimatedSprite;
 import kha.Assets;
 import kha.Scheduler;
 import kha.System;

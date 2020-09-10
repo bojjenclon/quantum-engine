@@ -1,18 +1,13 @@
-package quantum.display;
+package quantum.entities.display;
 
-import kha.math.FastMatrix3;
 import kha.math.FastVector2;
-import kha.math.Vector2;
 import kha.graphics2.Graphics;
 import kha.Assets;
 import kha.Image;
-import quantum.display.IRenderable;
+import quantum.entities.display.IRenderable;
 
-class Sprite implements IRenderable
+class Sprite extends Entity implements IRenderable
 {
-	public var position : Vector2 = new Vector2(0, 0);
-	public var x(get, set) : Float;
-	public var y(get, set) : Float;
 	public var width(get, never) : Int;
 	public var height(get, never) : Int;
 	public var scaledWidth(get, never) : Float;
@@ -40,26 +35,6 @@ class Sprite implements IRenderable
 
 		g.popOpacity();
 		g.popTransformation();
-	}
-
-	function get_x() : Float
-	{
-		return position.x;
-	}
-
-	function set_x(value : Float) : Float
-	{
-		return position.x = value;
-	}
-
-	function get_y() : Float
-	{
-		return position.y;
-	}
-
-	function set_y(value : Float) : Float
-	{
-		return position.y = value;
 	}
 
 	function get_width() : Int
