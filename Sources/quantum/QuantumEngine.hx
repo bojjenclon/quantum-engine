@@ -72,8 +72,8 @@ class QuantumEngine
 		sprite.y = 32;
 		sprite.scale.x = 4;
 		sprite.scale.y = 2;
-		sprite.alpha = 0.5;
-		sprite.color = Color.Cyan;
+		sprite.alpha = 0.7;
+		sprite.color = Color.Red;
 
 		var sub = new Sprite("tex");
 		sub.x = 64;
@@ -92,6 +92,7 @@ class QuantumEngine
 		anim.play("run");
 
 		scene = new Scene();
+		scene.background = 0xff009999;
 		scene.addChild(sprite);
 		scene.addChild(anim);
 

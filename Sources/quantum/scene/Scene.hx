@@ -1,5 +1,6 @@
 package quantum.scene;
 
+import kha.Color;
 import haxe.ds.ReadOnlyArray;
 import kha.graphics2.Graphics;
 import quantum.entities.display.IRenderable;
@@ -10,6 +11,7 @@ class Scene
 	public final onChildAdded : Signal1<Basic> = new Signal1<Basic>();
 	public final onChildRemoved : Signal1<Basic> = new Signal1<Basic>();
 
+	public var background : Color = Color.Black;
 	public var children(get, never) : ReadOnlyArray<Basic>;
 
 	final _children : Array<Basic> = new Array<Basic>();
@@ -62,6 +64,8 @@ class Scene
 
 	public function render(g : Graphics)
 	{
+		g.clear(background);
+
 		for (entity in _renderables)
 		{
 			entity.render(g);
