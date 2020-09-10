@@ -20,5 +20,9 @@
 		"methodChain": {
 			"defaultWrap": "onePerLine"
 		}
+	},
+	"emptyLines": {
+		"afterFieldsWithDocComments": "ignore",
+		"beforeDocCommentEmptyLines": "ignore"
 	}
 }

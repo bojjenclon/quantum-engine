@@ -10,14 +10,39 @@ class Entity implements IUpdateable implements IRenderable
 	public final onChildAdded : Signal1<Entity> = new Signal1<Entity>();
 	public final onChildRemoved : Signal1<Entity> = new Signal1<Entity>();
 
+	/**
+	 * Position relative to parent.
+	 */
 	public var position : Vector2 = new Vector2(0, 0);
+	/**
+	 * X-coord relative to parent.
+	 */
 	public var x(get, set) : Float;
+	/**
+	 * Y-coord relative to parent.
+	 */
 	public var y(get, set) : Float;
+
+	/**
+	 * Absolute position.
+	 */
 	public var globalPosition(get, never) : Vector2;
+	/**
+	 * Absolute x-coord.
+	 */
 	public var globalX(get, never) : Float;
+	/**
+	 * Absolute y-coord.
+	 */
 	public var globalY(get, never) : Float;
 
+	/**
+	 * Determines if this entity will be updated.
+	 */
 	public var active : Bool = true;
+	/**
+	 * Determines if this entity will be rendered.
+	 */
 	public var visible : Bool = true;
 
 	public var parent(default, null) : Entity;
