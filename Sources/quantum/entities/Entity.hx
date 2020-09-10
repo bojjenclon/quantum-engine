@@ -2,6 +2,7 @@ package quantum.entities;
 
 import quantum.entities.display.IRenderable;
 import kha.graphics2.Graphics;
+import kha.math.FastVector2;
 import kha.math.Vector2;
 import signals.Signal1;
 
@@ -35,6 +36,10 @@ class Entity extends Basic implements IUpdateable implements IRenderable
 	 * Absolute y-coord.
 	 */
 	public var globalY(get, never) : Float;
+
+	public var rotation(default, set) : Float = 0;
+	public var alpha(default, set) : Float = 1;
+	public var scale : FastVector2 = new FastVector2(1, 1);
 
 	/**
 	 * Determines if this entity will be updated.
@@ -150,5 +155,26 @@ class Entity extends Basic implements IUpdateable implements IRenderable
 		}
 
 		return parent.y + y;
+	}
+
+	function set_rotation(value : Float) : Float
+	{
+		return rotation = value % 360;
+	}
+
+	function set_alpha(value : Float) : Float
+	{
+		alpha = value;
+
+		if (alpha < 0)
+		{
+			alpha = 0;
+		}
+		else if (alpha > 1)
+		{
+			alpha = 1;
+		}
+
+		return alpha;
 	}
 }

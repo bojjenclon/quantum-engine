@@ -10,11 +10,11 @@ class Sprite extends Entity
 {
 	public var width(get, never) : Int;
 	public var height(get, never) : Int;
+
 	public var scaledWidth(get, never) : Float;
 	public var scaledHeight(get, never) : Float;
-	public var rotation(default, set) : Float = 0;
-	public var alpha(default, set) : Float = 1;
-	public var scale : FastVector2 = new FastVector2(1, 1);
+
+	var adjustedAlpha(get, never) : Float;
 
 	var _image : Image;
 
@@ -34,14 +34,19 @@ class Sprite extends Entity
 		var rad = Math.PI / 180 * rotation;
 
 		g.pushRotation(rad, globalX + center.x, globalY + center.y);
-		g.pushOpacity(alpha);
+		g.pushOpacity(adjustedAlpha);
 
-		g.drawScaledImage(_image, globalX, globalY, scaledWidth, scaledHeight);
+		renderSelf(g);
 
 		g.popOpacity();
 		g.popTransformation();
 
 		renderChildren(g);
+	}
+
+	function renderSelf(g : Graphics)
+	{
+		g.drawScaledImage(_image, globalX, globalY, scaledWidth, scaledHeight);
 	}
 
 	function get_width() : Int
@@ -64,24 +69,13 @@ class Sprite extends Entity
 		return height * scale.y;
 	}
 
-	function set_rotation(value : Float) : Float
+	function get_adjustedAlpha() : Float
 	{
-		return rotation = value % 360;
-	}
-
-	function set_alpha(value : Float) : Float
-	{
-		alpha = value;
-
-		if (alpha < 0)
+		if (parent == null)
 		{
-			alpha = 0;
-		}
-		else if (alpha > 1)
-		{
-			alpha = 1;
+			return alpha;
 		}
 
-		return alpha;
+		return parent.alpha * alpha;
 	}
 }

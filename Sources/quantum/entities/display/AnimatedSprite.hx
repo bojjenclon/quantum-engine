@@ -44,30 +44,13 @@ class AnimatedSprite extends Sprite
 		_verticalFrames = Math.ceil(_image.height / frameHeight);
 	}
 
-	override public function render(g : Graphics)
+	override function renderSelf(g : Graphics)
 	{
-		if (!visible)
-		{
-			return;
-		}
-
-		var center = new FastVector2(scaledWidth / 2, scaledHeight / 2);
-		var rad = Math.PI / 180 * rotation;
-
 		// Calculate where we are in the overall image
 		var sx = (currentFrame % _horizontalFrames) * frameWidth;
 		var sy = Math.floor(currentFrame / _horizontalFrames) * frameHeight;
 
-		// Rotate about the origin
-		g.pushRotation(rad, globalX + center.x, globalY + center.y);
-		g.pushOpacity(alpha);
-
 		g.drawScaledSubImage(_image, sx, sy, frameWidth, frameHeight, globalX, globalY, scaledWidth, scaledHeight);
-
-		g.popOpacity();
-		g.popTransformation();
-
-		renderChildren(g);
 	}
 
 	override public function update(dt : Float)
