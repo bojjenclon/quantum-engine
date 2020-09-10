@@ -33,8 +33,6 @@ class Scene
 		}
 
 		onChildAdded.dispatch(child);
-
-		trace(child.hash());
 	}
 
 	public function removeChild(child : Basic)
