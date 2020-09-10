@@ -1,5 +1,6 @@
 package quantum;
 
+import kha.Color;
 import quantum.ui.IUI;
 import kha.Window;
 import zui.Id;
@@ -72,6 +73,7 @@ class QuantumEngine
 		sprite.scale.x = 4;
 		sprite.scale.y = 2;
 		sprite.alpha = 0.5;
+		sprite.color = Color.Cyan;
 
 		var sub = new Sprite("tex");
 		sub.x = 64;

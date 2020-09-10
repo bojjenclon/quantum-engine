@@ -1,5 +1,6 @@
 package quantum.entities.display;
 
+import kha.Color;
 import kha.math.FastVector2;
 import kha.graphics2.Graphics;
 import kha.Assets;
@@ -35,9 +36,11 @@ class Sprite extends Entity
 
 		g.pushRotation(rad, globalX + center.x, globalY + center.y);
 		g.pushOpacity(trueAlpha);
+		g.color = color;
 
 		renderSelf(g);
 
+		g.color = Color.White;
 		g.popOpacity();
 		g.popTransformation();
 

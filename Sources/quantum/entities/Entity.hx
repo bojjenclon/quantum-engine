@@ -1,5 +1,6 @@
 package quantum.entities;
 
+import kha.Color;
 import haxe.crypto.Md5;
 import quantum.entities.display.IRenderable;
 import kha.graphics2.Graphics;
@@ -63,6 +64,8 @@ class Entity extends Basic implements IUpdateable implements IRenderable
 	 * Scale relative to parent.
 	 */
 	public var trueScale(get, never) : FastVector2;
+
+	public var color : Color = Color.White;
 
 	/**
 	 * Determines if this entity will be updated.
