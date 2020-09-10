@@ -148,7 +148,7 @@ class AnimatedSprite extends Sprite
 		buf.add(',FrameWidth=$frameWidth');
 		buf.add(',FrameHeight=$frameHeight');
 		buf.add(',CurrentFrame=$currentFrame');
-		buf.add(',CurrentAnimation=$currentAnimation');
+		buf.add(',CurrentAnimation="$currentAnimation"');
 
 		var animationsString = [];
 		for (anim in animations)

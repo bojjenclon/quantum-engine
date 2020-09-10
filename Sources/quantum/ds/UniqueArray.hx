@@ -1,5 +1,8 @@
 package quantum.ds;
 
+import haxe.Unserializer;
+import haxe.Serializer;
+
 private class UniqueArrayIterator<V>
 {
 	var _array : UniqueArray<V>;
@@ -71,6 +74,18 @@ class UniqueArray<V>
 	public function iterator() : UniqueArrayIterator<V>
 	{
 		return new UniqueArrayIterator<V>(this);
+	}
+
+	@:keep
+	function hxSerialize(serializer : Serializer)
+	{
+		serializer.serialize(_entries);
+	}
+
+	@:keep
+	function hxUnserialize(unserializer : Unserializer)
+	{
+		_entries = unserializer.unserialize();
 	}
 
 	function get_length() : Int
