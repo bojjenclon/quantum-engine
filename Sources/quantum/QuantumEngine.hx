@@ -114,6 +114,8 @@ class QuantumEngine
 		input.register("exit", KeyCode.Escape);
 		input.register("left", KeyCode.Left);
 		input.register("left", KeyCode.A);
+		input.register("right", KeyCode.Right);
+		input.register("right", KeyCode.D);
 
 		// Doesn't currently work for all targets, so
 		// for now we use a hack.
@@ -198,6 +200,10 @@ class QuantumEngine
 			#end
 
 			if (input.isDown("left"))
+			{
+				sub.rotation--;
+			}
+			else if (input.isDown("right"))
 			{
 				sub.rotation++;
 			}
