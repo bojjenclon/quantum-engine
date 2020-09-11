@@ -84,7 +84,7 @@ class QuantumEngine
 		timer = new Timer();
 
 		#if debug
-		debugUI = new DebugUI(Assets.fonts._8_bit_hud);
+		debugUI = new DebugUI(_debugFont);
 
 		debugUI.onDebugDrawCheckChanged.add(onDebugDrawCheckChanged);
 		#end

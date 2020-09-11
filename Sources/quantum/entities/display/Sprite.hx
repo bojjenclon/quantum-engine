@@ -17,11 +17,11 @@ class Sprite extends Entity
 
 	var _image : Image;
 
-	public function new(imageName : String)
+	public function new(image : Image)
 	{
 		super();
 
-		_image = Assets.images.get(imageName);
+		_image = image;
 	}
 
 	override public function render(g : Graphics)

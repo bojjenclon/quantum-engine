@@ -1,5 +1,6 @@
 package quantum.entities.display;
 
+import kha.Image;
 import kha.math.FastVector2;
 import kha.graphics2.Graphics;
 import signals.Signal1;
@@ -33,9 +34,9 @@ class AnimatedSprite extends Sprite
 	var _animFrame : Int = 0;
 	var _timeOnFrame : Float = 0;
 
-	public function new(imageName : String, frameWidth : Int, frameHeight : Int)
+	public function new(image : Image, frameWidth : Int, frameHeight : Int)
 	{
-		super(imageName);
+		super(image);
 
 		this.frameWidth = frameWidth;
 		this.frameHeight = frameHeight;
