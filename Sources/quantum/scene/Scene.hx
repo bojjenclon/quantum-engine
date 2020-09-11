@@ -15,6 +15,7 @@ class Scene
 
 	public var background : Color = Color.Black;
 	public var children(get, never) : ReadOnlyArray<Basic>;
+	public var collideables(get, never) : ReadOnlyArray<ICollideable>;
 
 	final _children : Array<Basic> = new Array<Basic>();
 	final _renderables : Array<IRenderable> = new Array<IRenderable>();
@@ -100,5 +101,10 @@ class Scene
 	function get_children() : ReadOnlyArray<Basic>
 	{
 		return _children;
+	}
+
+	function get_collideables() : ReadOnlyArray<ICollideable>
+	{
+		return _collideables;
 	}
 }

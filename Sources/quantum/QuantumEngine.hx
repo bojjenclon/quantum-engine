@@ -85,6 +85,8 @@ class QuantumEngine
 		sprite.scale.y = 2;
 		sprite.alpha = 0.7;
 		sprite.color = Color.Red;
+		sprite.immobile = true;
+		sprite.addCollider(Polygon.rectangle(0, 0, sprite.width, sprite.height, true));
 
 		sub = new Sprite("tex");
 		sub.x = 64;
@@ -103,10 +105,19 @@ class QuantumEngine
 		anim.addAnimation("air", [10], 0, false);
 		anim.play("run");
 
+		var s2 = new Sprite("tex");
+		s2.x = 128;
+		s2.y = 60;
+		s2.scale.x = 3;
+		s2.scale.y = 2;
+		s2.color = Color.Blue;
+		s2.addCollider(Polygon.rectangle(0, 0, s2.width, s2.height, true));
+
 		scene = new Scene();
 		scene.background = 0xff009999;
 		scene.addChild(sprite);
 		scene.addChild(anim);
+		scene.addChild(s2);
 
 		var input = Input.instance;
 		input.initialize();
@@ -116,6 +127,10 @@ class QuantumEngine
 		input.register("left", KeyCode.A);
 		input.register("right", KeyCode.Right);
 		input.register("right", KeyCode.D);
+		input.register("up", KeyCode.Up);
+		input.register("up", KeyCode.W);
+		input.register("down", KeyCode.Down);
+		input.register("down", KeyCode.S);
 
 		// Doesn't currently work for all targets, so
 		// for now we use a hack.
@@ -201,11 +216,21 @@ class QuantumEngine
 
 			if (input.isDown("left"))
 			{
-				sub.rotation--;
+				// sub.rotation--;
+				sub.x--;
 			}
 			else if (input.isDown("right"))
 			{
-				sub.rotation++;
+				// sub.rotation++;
+				sub.x++;
+			}
+			else if (input.isDown("up"))
+			{
+				sub.y--;
+			}
+			else if (input.isDown("down"))
+			{
+				sub.y++;
 			}
 
 			if (scene != null)

@@ -1,5 +1,7 @@
 package quantum.entities;
 
+import signals.Signal2;
+import differ.data.ShapeCollision;
 import quantum.scene.Scene;
 import quantum.debug.KhaDrawer;
 import differ.shapes.Polygon;
@@ -19,6 +21,7 @@ class Entity extends Basic implements IUpdateable implements IRenderable impleme
 {
 	public final onChildAdded : Signal1<Entity> = new Signal1<Entity>();
 	public final onChildRemoved : Signal1<Entity> = new Signal1<Entity>();
+	public final onCollision : Signal2<ICollideable, ShapeCollision> = new Signal2<ICollideable, ShapeCollision>();
 
 	/**
 	 * Position relative to parent.
@@ -77,6 +80,11 @@ class Entity extends Basic implements IUpdateable implements IRenderable impleme
 	public var colliders(get, never) : ReadOnlyArray<Shape>;
 
 	var _colliders : Array<Shape> = [];
+
+	/**
+	 * Determines if this entity can be pushed by collisions.
+	 */
+	public var immobile : Bool = false;
 
 	/**
 	 * Determines if this entity will be updated.
@@ -141,6 +149,7 @@ class Entity extends Basic implements IUpdateable implements IRenderable impleme
 		}
 
 		syncColliders();
+		checkCollision();
 
 		updateChildren(dt);
 	}
@@ -157,6 +166,43 @@ class Entity extends Basic implements IUpdateable implements IRenderable impleme
 			collider.scaleY = trueScale.y;
 			collider.rotation = trueRotation;
 		}
+	}
+
+	function checkCollision()
+	{
+		for (collideable in scene.collideables)
+		{
+			if (collideable == this)
+			{
+				continue;
+			}
+
+			for (collider in colliders)
+			{
+				for (other in collideable.colliders)
+				{
+					var result = collider.test(other);
+
+					if (result != null)
+					{
+						if (!immobile)
+						{
+							separate(result);
+						}
+
+						onCollision.dispatch(collideable, result);
+					}
+				}
+			}
+		}
+	}
+
+	function separate(collision : ShapeCollision)
+	{
+		x += collision.separationX;
+		y += collision.separationY;
+
+		syncColliders();
 	}
 
 	function updateChildren(dt : Float)
