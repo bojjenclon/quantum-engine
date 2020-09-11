@@ -54,13 +54,13 @@ class QuantumEngine
 	var _winHeight : Int;
 
 	#if debug
-	var _debugFont : Font;
+	var _debugFont : String;
 	#end
 
 	private function new() {}
 
 	#if debug
-	public function initialize(width : Int = 800, height : Int = 600, debugFont : Font)
+	public function initialize(width : Int = 800, height : Int = 600, debugFont : String)
 	#else
 	public function initialize(width : Int = 800, height : Int = 600)
 	#end
@@ -84,7 +84,7 @@ class QuantumEngine
 		timer = new Timer();
 
 		#if debug
-		debugUI = new DebugUI(_debugFont);
+		debugUI = new DebugUI(Assets.fonts.get(_debugFont));
 
 		debugUI.onDebugDrawCheckChanged.add(onDebugDrawCheckChanged);
 		#end
