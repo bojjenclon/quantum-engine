@@ -40,6 +40,9 @@ class QuantumEngine
 	var _fps : Float = 1 / 60;
 	var _accumulator : Float = 0;
 	var _backBuffer : Image;
+	#if debug
+	var _uiBuffer : Image;
+	#end
 
 	var sprite : Sprite;
 	var sub : Sprite;
@@ -156,15 +159,24 @@ class QuantumEngine
 
 		gBuffer.end();
 
+		#if debug
+		var gUI = _uiBuffer.g2;
+
+		gUI.begin();
+		gUI.clear(Color.Transparent);
+		gUI.end();
+
+		debugUI.render(gUI);
+		#end
+
 		var gMain = framebuffer.g2;
 
 		gMain.begin();
 		Scaler.scale(_backBuffer, framebuffer, System.screenRotation);
-		gMain.end();
-
 		#if debug
-		debugUI.render(gMain);
+		gMain.drawImage(_uiBuffer, 0, 0);
 		#end
+		gMain.end();
 
 		update();
 	}
@@ -209,6 +221,8 @@ class QuantumEngine
 		var scaleRect = Scaler.targetRect(width, height, _winWidth, _winHeight, System.screenRotation);
 
 		#if debug
+		_uiBuffer = Image.createRenderTarget(_winWidth, _winHeight);
+
 		debugUI.scale(scaleRect.scaleFactor);
 		#end
 	}

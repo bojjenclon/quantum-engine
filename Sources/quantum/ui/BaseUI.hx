@@ -20,6 +20,8 @@ class BaseUI implements IUI
 		});
 	}
 
+	function onMouseWheel(wheel : Float) {}
+
 	public function render(g : Graphics)
 	{
 		if (!visible)

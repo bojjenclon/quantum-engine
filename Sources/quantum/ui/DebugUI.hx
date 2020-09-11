@@ -1,5 +1,7 @@
 package quantum.ui;
 
+import zui.Zui.Align;
+import kha.System;
 import signals.Signal1;
 import zui.Id;
 
@@ -9,7 +11,11 @@ class DebugUI extends BaseUI
 
 	var _optionsWindow = Id.handle();
 	var _statsWindow = Id.handle();
+
 	var _debugDrawCheck = Id.handle();
+	var _showStatsCheck = Id.handle();
+
+	var _showStatsWindow : Bool = true;
 
 	public function new()
 	{
@@ -17,33 +23,62 @@ class DebugUI extends BaseUI
 
 		_windows.push(_optionsWindow);
 		_windows.push(_statsWindow);
+
+		// Start checked
+		_showStatsCheck.selected = true;
 	}
 
 	override function generateUI()
 	{
 		var engine = QuantumEngine.engine;
 
-		if (ui.window(_optionsWindow, 5, 5, 200, 200, true))
+		var scale = ui.SCALE();
+
+		var screenWidth = System.windowWidth();
+		var screenHeight = System.windowHeight();
+
+		var optionsWinWidth = Std.int(200 * scale);
+		var optionsWinHeight = Std.int(200 * scale);
+		var optionsWinX = 5;
+		var optionsWinY = 5;
+
+		var statsWinWidth = Std.int(180 * scale);
+		var statsWinHeight = Std.int(200 * scale);
+		var statsWinX = screenWidth - statsWinWidth - 5;
+		var statsWinY = 5;
+
+		if (ui.window(_optionsWindow, optionsWinX, optionsWinY, optionsWinWidth, optionsWinHeight))
 		{
+			if (ui.panel(Id.handle({selected: true}), "UI"))
+			{
+				_showStatsWindow = ui.check(_showStatsCheck, "Show Stats");
+			}
+
 			if (ui.panel(Id.handle({selected: true}), "Drawing"))
 			{
-				ui.indent();
-
 				var debugDragValue = ui.check(_debugDrawCheck, "Debug Draw");
 				if (_debugDrawCheck.changed)
 				{
 					onDebugDrawCheckChanged.dispatch(debugDragValue);
 				}
-
-				ui.unindent();
 			}
 		}
 
-		_statsWindow.redraws = 1;
-		if (ui.window(_statsWindow, engine.width - 125, 5, 120, 200, true))
+		if (_showStatsWindow)
 		{
-			var fpsString = '${engine.timer.fpsAvg}'.substring(0, 5);
-			ui.text('FPS: $fpsString');
+			_statsWindow.redraws = 1;
+			if (ui.window(_statsWindow, statsWinX, statsWinY, statsWinWidth, statsWinHeight))
+			{
+				if (ui.panel(Id.handle({selected: true}), "Stats"))
+				{
+					ui.row([0.5, 0.5]);
+
+					ui.text("FPS:");
+
+					var fpsString = '${engine.timer.fpsAvg}'.substring(0, 5);
+					ui.text(fpsString, Align.Right);
+				}
+			}
 		}
 	}
 }
