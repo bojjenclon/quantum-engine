@@ -1,5 +1,6 @@
 package quantum.entities.display;
 
+import differ.shapes.Shape;
 import kha.Color;
 import kha.math.FastVector2;
 import kha.graphics2.Graphics;
@@ -57,6 +58,34 @@ class Sprite extends Entity
 	function renderSelf(g : Graphics)
 	{
 		g.drawScaledImage(_image, globalX, globalY, scaledWidth, scaledHeight);
+	}
+
+	override function syncColliders()
+	{
+		super.syncColliders();
+
+		for (collider in _colliders)
+		{
+			var offset = collider.data.offset;
+
+			collider.x = globalX + scaledWidth / 2 + offset.x;
+			collider.y = globalY + scaledHeight / 2 + offset.y;
+		}
+	}
+
+	override public function addCollider(collider : Shape)
+	{
+		collider.data = {
+			offset: {
+				x: collider.x,
+				y: collider.y
+			}
+		};
+
+		collider.x += globalX + scaledWidth / 2;
+		collider.y += globalY + scaledHeight / 2;
+
+		_colliders.push(collider);
 	}
 
 	override public function serialize() : String

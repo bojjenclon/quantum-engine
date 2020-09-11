@@ -1,5 +1,6 @@
 package quantum.entities;
 
+import quantum.debug.KhaDrawer;
 import differ.shapes.Polygon;
 import differ.shapes.Circle;
 import differ.shapes.Shape;
@@ -117,47 +118,14 @@ class Entity extends Basic implements IUpdateable implements IRenderable impleme
 	#if debug
 	function drawColliders(g : Graphics)
 	{
+		var shapeDrawer = KhaDrawer.drawer;
+		shapeDrawer.g = g;
+
 		g.color = Color.Red;
 
 		for (shape in colliders)
 		{
-			if (Std.is(shape, Circle))
-			{
-				var circle = cast(shape, Circle);
-				var radius = circle.transformedRadius;
-
-				var segments = 20;
-				var step = 2 * Math.PI / segments;
-				// Start at the second point since our draw uses the
-				// previous and current points for each line.
-				var theta = step;
-
-				while (theta <= 2 * Math.PI)
-				{
-					var x1 = circle.x + radius * Math.cos(theta - step);
-					var y1 = circle.y + radius * Math.sin(theta - step);
-
-					var x2 = circle.x + radius * Math.cos(theta);
-					var y2 = circle.y + radius * Math.sin(theta);
-
-					g.drawLine(x1, y1, x2, y2);
-
-					theta += step;
-				}
-			}
-			else if (Std.is(shape, Polygon))
-			{
-				var polygon = cast(shape, Polygon);
-				var vertices = polygon.transformedVertices;
-
-				for (i in 0...vertices.length)
-				{
-					var v1 = vertices[i];
-					var v2 = vertices[(i + 1) % vertices.length];
-
-					g.drawLine(v1.x, v1.y, v2.x, v2.y);
-				}
-			}
+			shapeDrawer.drawShape(shape);
 		}
 
 		g.color = Color.Black;
@@ -171,7 +139,23 @@ class Entity extends Basic implements IUpdateable implements IRenderable impleme
 			return;
 		}
 
+		syncColliders();
+
 		updateChildren(dt);
+	}
+
+	function syncColliders()
+	{
+		for (collider in _colliders)
+		{
+			var offset = collider.data.offset;
+
+			collider.x = globalX + offset.x;
+			collider.y = globalY + offset.y;
+			collider.scaleX = trueScale.x;
+			collider.scaleY = trueScale.y;
+			collider.rotation = trueRotation;
+		}
 	}
 
 	function updateChildren(dt : Float)
@@ -202,6 +186,16 @@ class Entity extends Basic implements IUpdateable implements IRenderable impleme
 
 	public function addCollider(collider : Shape)
 	{
+		collider.data = {
+			offset: {
+				x: collider.x,
+				y: collider.y
+			}
+		};
+
+		collider.x += globalX;
+		collider.y += globalY;
+
 		_colliders.push(collider);
 	}
 

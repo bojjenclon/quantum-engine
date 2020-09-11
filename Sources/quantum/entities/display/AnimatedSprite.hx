@@ -59,13 +59,15 @@ class AnimatedSprite extends Sprite
 		{
 			return;
 		}
-		else if (currentAnimation == null || currentAnimation == "")
+
+		var animNeedsUpdate = true;
+		if (currentAnimation == null || currentAnimation == "")
 		{
-			return;
+			animNeedsUpdate = false;
 		}
 		else if (!isPlaying)
 		{
-			return;
+			animNeedsUpdate = false;
 		}
 
 		var anim = animations[currentAnimation];
@@ -73,27 +75,30 @@ class AnimatedSprite extends Sprite
 
 		if (anim.finished)
 		{
-			return;
+			animNeedsUpdate = false;
 		}
 
-		_timeOnFrame += dt;
-		if (_timeOnFrame >= anim.speed)
+		if (animNeedsUpdate)
 		{
-			_animFrame++;
-			if (_animFrame >= totalFrames)
+			_timeOnFrame += dt;
+			if (_timeOnFrame >= anim.speed)
 			{
-				_animFrame = anim.loop ? _animFrame % totalFrames : totalFrames - 1;
-				anim.finished = !anim.loop;
-
-				if (anim.finished)
+				_animFrame++;
+				if (_animFrame >= totalFrames)
 				{
-					onAnimationFinished.dispatch(currentAnimation);
+					_animFrame = anim.loop ? _animFrame % totalFrames : totalFrames - 1;
+					anim.finished = !anim.loop;
+
+					if (anim.finished)
+					{
+						onAnimationFinished.dispatch(currentAnimation);
+					}
 				}
+
+				currentFrame = anim.frames[_animFrame];
+
+				_timeOnFrame = 0;
 			}
-
-			currentFrame = anim.frames[_animFrame];
-
-			_timeOnFrame = 0;
 		}
 
 		super.update(dt);

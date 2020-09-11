@@ -14,6 +14,7 @@ import quantum.entities.display.Sprite;
 import quantum.scene.Scene;
 import quantum.ui.DebugUI;
 import quantum.ui.IUI;
+import quantum.debug.KhaDrawer;
 import signals.Signal1;
 
 class QuantumEngine
@@ -40,6 +41,7 @@ class QuantumEngine
 	var _timer : Timer;
 
 	var sprite : Sprite;
+	var sub : Sprite;
 	var anim : AnimatedSprite;
 
 	// Hack until notifyOnResize works for all targets
@@ -80,11 +82,12 @@ class QuantumEngine
 		sprite.alpha = 0.7;
 		sprite.color = Color.Red;
 
-		var sub = new Sprite("tex");
+		sub = new Sprite("tex");
 		sub.x = 64;
 		sub.y = 96;
 		sub.alpha = 0.5;
 		sprite.addChild(sub);
+		sub.addCollider(Polygon.rectangle(0, 0, sub.width, sub.height, true));
 
 		anim = new AnimatedSprite("player", 32, 32);
 		anim.x = 128;
@@ -138,6 +141,11 @@ class QuantumEngine
 
 		var gBuffer = _backBuffer.g2;
 
+		#if debug
+		var shapeDrawer = KhaDrawer.drawer;
+		shapeDrawer.g = gBuffer;
+		#end
+
 		gBuffer.begin();
 
 		if (scene != null)
@@ -175,6 +183,11 @@ class QuantumEngine
 				debugUI.visible = !debugUI.visible;
 			}
 			#end
+
+			if (input.isDown("left"))
+			{
+				sub.rotation++;
+			}
 
 			if (scene != null)
 			{
