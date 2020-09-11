@@ -1,0 +1,20 @@
+{
+  "name": "quantum-engine",
+  "url": "https://github.com/bojjenclon/quantum-engine",
+  "license": "MIT",
+  "tags": [
+    "kha"
+  ],
+  "description": "",
+  "version": "0.0.1",
+  "classPath": "Source/",
+  "contributors": [
+    "bojjenclon"
+  ],
+  "dependencies": {
+    "uuid": "",
+    "signals": "",
+    "differ": "",
+    "zui": ""
+  }
+}
