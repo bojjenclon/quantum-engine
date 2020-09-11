@@ -1,5 +1,6 @@
 package quantum.entities;
 
+import quantum.scene.Scene;
 import quantum.debug.KhaDrawer;
 import differ.shapes.Polygon;
 import differ.shapes.Circle;
@@ -182,6 +183,26 @@ class Entity extends Basic implements IUpdateable implements IRenderable impleme
 		children.remove(child);
 
 		onChildRemoved.dispatch(child);
+	}
+
+	override public function onAddedToScene(scene : Scene)
+	{
+		super.onAddedToScene(scene);
+
+		for (child in children)
+		{
+			child.onAddedToScene(scene);
+		}
+	}
+
+	override public function onRemovedFromScene(scene : Scene)
+	{
+		super.onRemovedFromScene(scene);
+
+		for (child in children)
+		{
+			child.onRemovedFromScene(scene);
+		}
 	}
 
 	public function addCollider(collider : Shape)

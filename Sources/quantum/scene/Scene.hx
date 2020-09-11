@@ -1,5 +1,6 @@
 package quantum.scene;
 
+import quantum.partials.ICollideable;
 import kha.graphics2.Graphics;
 import kha.Color;
 import haxe.ds.ReadOnlyArray;
@@ -18,6 +19,7 @@ class Scene
 	final _children : Array<Basic> = new Array<Basic>();
 	final _renderables : Array<IRenderable> = new Array<IRenderable>();
 	final _updateables : Array<IUpdateable> = new Array<IUpdateable>();
+	final _collideables : Array<ICollideable> = new Array<ICollideable>();
 
 	public function new() {}
 
@@ -35,6 +37,13 @@ class Scene
 			_updateables.push(cast(child, IUpdateable));
 		}
 
+		if (Std.is(child, ICollideable))
+		{
+			_collideables.push(cast(child, ICollideable));
+		}
+
+		child.onAddedToScene(this);
+
 		onChildAdded.dispatch(child);
 	}
 
@@ -51,6 +60,13 @@ class Scene
 		{
 			_updateables.remove(cast(child, IUpdateable));
 		}
+
+		if (Std.is(child, ICollideable))
+		{
+			_collideables.remove(cast(child, ICollideable));
+		}
+
+		child.onRemovedFromScene(this);
 
 		onChildRemoved.dispatch(child);
 	}
