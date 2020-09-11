@@ -26,6 +26,8 @@ class QuantumEngine
 	public var width(default, null) : Int = 800;
 	public var height(default, null) : Int = 600;
 
+	public var timer(default, null) : Timer;
+
 	public var scene(default, set) : Scene;
 
 	#if debug
@@ -38,7 +40,6 @@ class QuantumEngine
 	var _fps : Float = 1 / 60;
 	var _accumulator : Float = 0;
 	var _backBuffer : Image;
-	var _timer : Timer;
 
 	var sprite : Sprite;
 	var sub : Sprite;
@@ -64,7 +65,7 @@ class QuantumEngine
 
 		_backBuffer = Image.createRenderTarget(width, height);
 
-		_timer = new Timer();
+		timer = new Timer();
 
 		#if debug
 		debugUI = new DebugUI();
@@ -170,7 +171,7 @@ class QuantumEngine
 
 	function update()
 	{
-		var dt = _timer.update();
+		var dt = timer.update();
 		var input = Input.instance;
 
 		// https://gafferongames.com/post/fix_your_timestep/
@@ -212,10 +213,12 @@ class QuantumEngine
 		#end
 	}
 
+	#if debug
 	function onDebugDrawCheckChanged(value : Bool)
 	{
 		debugDraw = value;
 	}
+	#end
 
 	function set_scene(value : Scene) : Scene
 	{

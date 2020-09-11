@@ -10,7 +10,7 @@ class BaseUI implements IUI
 	public var visible(default, set) : Bool = false;
 	public var ui(default, null) : Zui;
 
-	var _hwin : Dynamic;
+	var _windows : Array<Dynamic> = [];
 
 	private function new()
 	{
@@ -18,8 +18,6 @@ class BaseUI implements IUI
 			font: Assets.fonts._8_bit_hud,
 			autoNotifyInput: false
 		});
-
-		_hwin = Id.handle();
 	}
 
 	public function render(g : Graphics)
@@ -41,7 +39,10 @@ class BaseUI implements IUI
 		ui.setScale(scale);
 
 		// Force redraw
-		_hwin.redraws = 1;
+		for (hwin in _windows)
+		{
+			hwin.redraws = 1;
+		}
 	}
 
 	function set_visible(value : Bool) : Bool

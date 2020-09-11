@@ -7,18 +7,25 @@ class DebugUI extends BaseUI
 {
 	public var onDebugDrawCheckChanged : Signal1<Bool> = new Signal1<Bool>();
 
+	var _optionsWindow = Id.handle();
+	var _statsWindow = Id.handle();
 	var _debugDrawCheck = Id.handle();
 
 	public function new()
 	{
 		super();
+
+		_windows.push(_optionsWindow);
+		_windows.push(_statsWindow);
 	}
 
 	override function generateUI()
 	{
-		if (ui.window(_hwin, 10, 10, 500, 200, true))
+		var engine = QuantumEngine.engine;
+
+		if (ui.window(_optionsWindow, 5, 5, 200, 200, true))
 		{
-			if (ui.panel(Id.handle({selected: true}), "Panel"))
+			if (ui.panel(Id.handle({selected: true}), "Drawing"))
 			{
 				ui.indent();
 
@@ -30,6 +37,13 @@ class DebugUI extends BaseUI
 
 				ui.unindent();
 			}
+		}
+
+		_statsWindow.redraws = 1;
+		if (ui.window(_statsWindow, engine.width - 125, 5, 120, 200, true))
+		{
+			var fpsString = '${engine.timer.fpsAvg}'.substring(0, 5);
+			ui.text('FPS: $fpsString');
 		}
 	}
 }

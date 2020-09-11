@@ -8,7 +8,7 @@ class Main
 	public static function main()
 	{
 		var engine = QuantumEngine.engine;
-		System.start({title: "Quantum Engine", width: 1600, height: 900}, function(_)
+		System.start({title: "Quantum Engine", width: 640, height: 360}, function(_)
 		{
 			engine.initialize(640, 360);
 		});
