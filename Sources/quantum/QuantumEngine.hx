@@ -224,7 +224,7 @@ class QuantumEngine
 				// sub.rotation++;
 				sub.x++;
 			}
-			else if (input.isDown("up"))
+			if (input.isDown("up"))
 			{
 				sub.y--;
 			}
