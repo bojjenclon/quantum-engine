@@ -1,5 +1,7 @@
 package quantum.ui;
 
+import kha.Color;
+import zui.Canvas.TCanvas;
 import zui.Zui.Align;
 import kha.System;
 import signals.Signal1;
@@ -77,8 +79,56 @@ class DebugUI extends BaseUI
 
 					var fpsString = '${engine.timer.fpsAvg}'.substring(0, 5);
 					ui.text(fpsString, Align.Right);
+
+					ui.separator(2);
+
+					drawFPSGraph(30);
 				}
 			}
 		}
+	}
+
+	function drawFPSGraph(dataPoints : Int = 25, barSpace : Int = 2)
+	{
+		var engine = QuantumEngine.engine;
+
+		var scale = ui.SCALE();
+
+		var fpsList = engine.timer._fpsList;
+		fpsList = fpsList.slice(fpsList.length - dataPoints);
+		var fpsBars = fpsList.length;
+
+		var fpsGraphWidth = Std.int(170 * scale);
+		var fpsBarWidth = Math.max(1, Math.floor((fpsGraphWidth - (barSpace * fpsBars)) / fpsBars));
+
+		var fpsMax = Math.NEGATIVE_INFINITY;
+		var fpsMin = Math.POSITIVE_INFINITY;
+
+		for (fps in fpsList)
+		{
+			if (fps > fpsMax)
+			{
+				fpsMax = fps;
+			}
+
+			if (fps < fpsMin)
+			{
+				fpsMin = fps;
+			}
+		}
+
+		var xOffset = ((fpsGraphWidth - ((fpsBarWidth + barSpace) * fpsBars))) / 2;
+		var barX = 5 + xOffset;
+		var barY = 5;
+		var barHeight = 30;
+
+		for (fps in fpsList)
+		{
+			var fpsHeight = barHeight * fps / fpsMax;
+			ui.fill(barX, barY + (barHeight - fpsHeight), fpsBarWidth, fpsHeight, Color.Green);
+			barX += Math.ceil(fpsBarWidth + barSpace);
+		}
+
+		ui.separator(40, false);
 	}
 }

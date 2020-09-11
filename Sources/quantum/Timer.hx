@@ -1,7 +1,9 @@
 package quantum;
 
+import quantum.ui.DebugUI;
 import kha.Scheduler;
 
+@:allow(quantum.ui.DebugUI)
 class Timer
 {
 	static final FPS_LIST_MAX : Int = 100;
