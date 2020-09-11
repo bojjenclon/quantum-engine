@@ -1,5 +1,6 @@
 package quantum.ui;
 
+import kha.Font;
 import kha.Color;
 import zui.Canvas.TCanvas;
 import zui.Zui.Align;
@@ -19,9 +20,9 @@ class DebugUI extends BaseUI
 
 	var _showStatsWindow : Bool = true;
 
-	public function new()
+	public function new(font : Font)
 	{
-		super();
+		super(font);
 
 		_windows.push(_optionsWindow);
 		_windows.push(_statsWindow);

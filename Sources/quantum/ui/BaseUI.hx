@@ -1,5 +1,6 @@
 package quantum.ui;
 
+import kha.Font;
 import zui.Id;
 import kha.Assets;
 import zui.Zui;
@@ -12,10 +13,10 @@ class BaseUI implements IUI
 
 	var _windows : Array<Dynamic> = [];
 
-	private function new()
+	private function new(font : Font)
 	{
 		ui = new Zui({
-			font: Assets.fonts._8_bit_hud,
+			font: font,
 			autoNotifyInput: false
 		});
 	}

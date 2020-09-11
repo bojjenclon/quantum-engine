@@ -1,5 +1,6 @@
 package quantum;
 
+import kha.Font;
 import differ.shapes.Circle;
 import differ.shapes.Polygon;
 import kha.Assets;
@@ -52,12 +53,24 @@ class QuantumEngine
 	var _winWidth : Int;
 	var _winHeight : Int;
 
+	#if debug
+	var _debugFont : Font;
+	#end
+
 	private function new() {}
 
+	#if debug
+	public function initialize(width : Int = 800, height : Int = 600, debugFont : Font)
+	#else
 	public function initialize(width : Int = 800, height : Int = 600)
+	#end
 	{
 		this.width = width;
 		this.height = height;
+		
+		#if debug
+		_debugFont = debugFont;
+		#end
 
 		Assets.loadEverything(loadingFinished);
 	}
@@ -71,7 +84,7 @@ class QuantumEngine
 		timer = new Timer();
 
 		#if debug
-		debugUI = new DebugUI();
+		debugUI = new DebugUI(Assets.fonts._8_bit_hud);
 
 		debugUI.onDebugDrawCheckChanged.add(onDebugDrawCheckChanged);
 		#end
