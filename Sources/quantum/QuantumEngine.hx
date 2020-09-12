@@ -1,5 +1,6 @@
 package quantum;
 
+import signals.Signal.Signal0;
 import kha.Font;
 import differ.shapes.Circle;
 import differ.shapes.Polygon;
@@ -22,6 +23,7 @@ class QuantumEngine
 {
 	public static final engine : QuantumEngine = new QuantumEngine();
 
+	public final onGameReady : Signal0 = new Signal0();
 	public final onSceneChanged : Signal1<Scene> = new Signal1<Scene>();
 
 	public var width(default, null) : Int = 800;
@@ -108,6 +110,8 @@ class QuantumEngine
 		{
 			render(framebuffers[0]);
 		});
+
+		onGameReady.dispatch();
 	}
 
 	function render(framebuffer : Framebuffer)
