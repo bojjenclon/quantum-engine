@@ -180,19 +180,23 @@ class Entity extends Basic implements IUpdateable implements IRenderable impleme
 
 	function checkCollision()
 	{
-		for (collideable in scene.collideables)
+		for (collider in colliders)
 		{
-			if (collideable == this)
-			{
-				continue;
-			}
+			#if debug
+			var foundCollision = false;
+			#end
 
-			var alreadyColliding = _isColliding.indexOf(collideable) > -1;
-			var didEnter = false;
-			var didExit = false;
-
-			for (collider in colliders)
+			for (collideable in scene.collideables)
 			{
+				if (collideable == this)
+				{
+					continue;
+				}
+
+				var alreadyColliding = _isColliding.indexOf(collideable) > -1;
+				var didEnter = false;
+				var didExit = false;
+
 				for (other in collideable.colliders)
 				{
 					var result = collider.test(other);
@@ -200,6 +204,14 @@ class Entity extends Basic implements IUpdateable implements IRenderable impleme
 
 					if (hasCollision)
 					{
+						#if debug
+						if (!foundCollision)
+						{
+							collider.tags.set("colliding", "colliding");
+							foundCollision = true;
+						}
+						#end
+
 						var isTrigger = collider.tags.exists("trigger");
 						if (!immobile && !isTrigger)
 						{
@@ -208,10 +220,6 @@ class Entity extends Basic implements IUpdateable implements IRenderable impleme
 
 						if (!alreadyColliding && !didEnter)
 						{
-							#if debug
-							collider.tags.set("colliding", "colliding");
-							#end
-							
 							_isColliding.push(collideable);
 
 							onCollisionEnter.dispatch(collider, other, result);
@@ -220,12 +228,15 @@ class Entity extends Basic implements IUpdateable implements IRenderable impleme
 					}
 					else
 					{
+						#if debug
+						if (!foundCollision)
+						{
+							collider.tags.remove("colliding");
+						}
+						#end
+
 						if (alreadyColliding && !didExit)
 						{
-							#if debug
-							collider.tags.remove("colliding");
-							#end
-
 							_isColliding.remove(collideable);
 
 							onCollisionExit.dispatch(collider, other);
