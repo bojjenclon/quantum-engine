@@ -1,18 +1,19 @@
 package quantum.partials;
 
-import quantum.ds.UniqueArray;
-import signals.Signal3;
 import differ.data.ShapeCollision;
-import signals.Signal2;
 import differ.shapes.Shape;
 import haxe.ds.ReadOnlyArray;
+import signals.Signal2;
+import signals.Signal3;
+import quantum.entities.Collider;
+import quantum.ds.UniqueArray;
 
 interface ICollideable
 {
-	public final onCollisionEnter : Signal3<Shape, Shape, ShapeCollision>;
-	public final onCollisionExit : Signal2<Shape, Shape>;
+	public final onCollisionEnter : Signal3<Collider, Collider, ShapeCollision>;
+	public final onCollisionExit : Signal2<Collider, Collider>;
 
 	public final tags : UniqueArray<String>;
-	public var colliders(get, never) : ReadOnlyArray<Shape>;
+	public var colliders(get, never) : ReadOnlyArray<Collider>;
 	public var immobile : Bool;
 }

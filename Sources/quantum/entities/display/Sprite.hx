@@ -66,29 +66,30 @@ class Sprite extends Entity
 
 		for (collider in _colliders)
 		{
-			var offset = collider.data.offset;
+			var shape = collider.shape;
+			var offset = shape.data.offset;
 
-			collider.x = globalX + scaledWidth / 2 + offset.x;
-			collider.y = globalY + scaledHeight / 2 + offset.y;
+			shape.x = globalX + scaledWidth / 2 + offset.x;
+			shape.y = globalY + scaledHeight / 2 + offset.y;
 		}
 	}
 
-	override public function addCollider(collider : Shape) : Shape
+	override public function addCollider(shape : Shape) : Shape
 	{
-		collider.data = {
-			owner: this,
+		shape.data = {
 			offset: {
-				x: collider.x,
-				y: collider.y
+				x: shape.x,
+				y: shape.y
 			}
 		};
 
-		collider.x += globalX + scaledWidth / 2;
-		collider.y += globalY + scaledHeight / 2;
+		shape.x += globalX + scaledWidth / 2;
+		shape.y += globalY + scaledHeight / 2;
 
+		var collider = new Collider(this, shape);
 		_colliders.push(collider);
 
-		return collider;
+		return shape;
 	}
 
 	override public function serialize() : String

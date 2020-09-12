@@ -1,29 +1,30 @@
 package quantum.entities;
 
-import signals.Signal3;
 import differ.data.ShapeCollision;
-import quantum.scene.Scene;
-import quantum.debug.KhaDrawer;
-import differ.shapes.Polygon;
 import differ.shapes.Circle;
+import differ.shapes.Polygon;
 import differ.shapes.Shape;
 import haxe.ds.ReadOnlyArray;
 import kha.Color;
-import quantum.partials.IUpdateable;
-import quantum.partials.IRenderable;
-import quantum.partials.ICollideable;
 import kha.graphics2.Graphics;
 import kha.math.FastVector2;
 import kha.math.Vector2;
-import signals.Signal2;
+import quantum.debug.KhaDrawer;
+import quantum.entities.Collider;
+import quantum.partials.ICollideable;
+import quantum.partials.IRenderable;
+import quantum.partials.IUpdateable;
+import quantum.scene.Scene;
 import signals.Signal1;
+import signals.Signal2;
+import signals.Signal3;
 
 class Entity extends Basic implements IUpdateable implements IRenderable implements ICollideable
 {
 	public final onChildAdded : Signal1<Entity> = new Signal1<Entity>();
 	public final onChildRemoved : Signal1<Entity> = new Signal1<Entity>();
-	public final onCollisionEnter : Signal3<Shape, Shape, ShapeCollision> = new Signal3<Shape, Shape, ShapeCollision>();
-	public final onCollisionExit : Signal2<Shape, Shape> = new Signal2<Shape, Shape>();
+	public final onCollisionEnter : Signal3<Collider, Collider, ShapeCollision> = new Signal3<Collider, Collider, ShapeCollision>();
+	public final onCollisionExit : Signal2<Collider, Collider> = new Signal2<Collider, Collider>();
 
 	/**
 	 * Position relative to parent.
@@ -79,9 +80,9 @@ class Entity extends Basic implements IUpdateable implements IRenderable impleme
 
 	public var color : Color = Color.White;
 
-	public var colliders(get, never) : ReadOnlyArray<Shape>;
+	public var colliders(get, never) : ReadOnlyArray<Collider>;
 
-	var _colliders : Array<Shape> = [];
+	var _colliders : Array<Collider> = [];
 	var _isColliding : Array<ICollideable> = [];
 
 	/**
@@ -140,8 +141,9 @@ class Entity extends Basic implements IUpdateable implements IRenderable impleme
 
 		g.color = Color.Red;
 
-		for (shape in colliders)
+		for (collider in colliders)
 		{
+			var shape = collider.shape;
 			var isColliding = shape.tags.exists("colliding");
 			g.color = isColliding ? Color.White : Color.Red;
 			shapeDrawer.drawShape(shape);
@@ -168,13 +170,14 @@ class Entity extends Basic implements IUpdateable implements IRenderable impleme
 	{
 		for (collider in _colliders)
 		{
-			var offset = collider.data.offset;
+			var shape = collider.shape;
+			var offset = shape.data.offset;
 
-			collider.x = globalX + offset.x;
-			collider.y = globalY + offset.y;
-			collider.scaleX = trueScale.x;
-			collider.scaleY = trueScale.y;
-			collider.rotation = trueRotation;
+			shape.x = globalX + offset.x;
+			shape.y = globalY + offset.y;
+			shape.scaleX = trueScale.x;
+			shape.scaleY = trueScale.y;
+			shape.rotation = trueRotation;
 		}
 	}
 
@@ -182,6 +185,9 @@ class Entity extends Basic implements IUpdateable implements IRenderable impleme
 	{
 		for (collider in colliders)
 		{
+			var shape = collider.shape;
+			var collidingWith = collider._collidingWith;
+
 			#if debug
 			var foundCollision = false;
 			#end
@@ -193,13 +199,15 @@ class Entity extends Basic implements IUpdateable implements IRenderable impleme
 					continue;
 				}
 
-				var alreadyColliding = _isColliding.indexOf(collideable) > -1;
 				var didEnter = false;
 				var didExit = false;
 
-				for (other in collideable.colliders)
+				for (otherCollider in collideable.colliders)
 				{
-					var result = collider.test(other);
+					var alreadyColliding = collidingWith.indexOf(otherCollider) > -1;
+					var other = otherCollider.shape;
+
+					var result = shape.test(other);
 					var hasCollision = result != null;
 
 					if (hasCollision)
@@ -207,12 +215,12 @@ class Entity extends Basic implements IUpdateable implements IRenderable impleme
 						#if debug
 						if (!foundCollision)
 						{
-							collider.tags.set("colliding", "colliding");
+							shape.tags.set("colliding", "colliding");
 							foundCollision = true;
 						}
 						#end
 
-						var isTrigger = collider.tags.exists("trigger");
+						var isTrigger = shape.tags.exists("trigger");
 						if (!immobile && !isTrigger)
 						{
 							separate(result);
@@ -220,9 +228,9 @@ class Entity extends Basic implements IUpdateable implements IRenderable impleme
 
 						if (!alreadyColliding && !didEnter)
 						{
-							_isColliding.push(collideable);
+							collidingWith.push(otherCollider);
 
-							onCollisionEnter.dispatch(collider, other, result);
+							onCollisionEnter.dispatch(collider, otherCollider, result);
 							didEnter = true;
 						}
 					}
@@ -231,15 +239,15 @@ class Entity extends Basic implements IUpdateable implements IRenderable impleme
 						#if debug
 						if (!foundCollision)
 						{
-							collider.tags.remove("colliding");
+							shape.tags.remove("colliding");
 						}
 						#end
 
 						if (alreadyColliding && !didExit)
 						{
-							_isColliding.remove(collideable);
+							collidingWith.remove(otherCollider);
 
-							onCollisionExit.dispatch(collider, other);
+							onCollisionExit.dispatch(collider, otherCollider);
 							didExit = true;
 						}
 					}
@@ -306,22 +314,22 @@ class Entity extends Basic implements IUpdateable implements IRenderable impleme
 		}
 	}
 
-	public function addCollider(collider : Shape) : Shape
+	public function addCollider(shape : Shape) : Shape
 	{
-		collider.data = {
-			owner: this,
+		shape.data = {
 			offset: {
-				x: collider.x,
-				y: collider.y
+				x: shape.x,
+				y: shape.y
 			}
 		};
 
-		collider.x += globalX;
-		collider.y += globalY;
+		shape.x += globalX;
+		shape.y += globalY;
 
+		var collider = new Collider(this, shape);
 		_colliders.push(collider);
 
-		return collider;
+		return shape;
 	}
 
 	public function addTrigger(trigger : Shape) : Shape
@@ -446,7 +454,7 @@ class Entity extends Basic implements IUpdateable implements IRenderable impleme
 		return new FastVector2(parent.scale.x * scale.x, parent.scale.y * scale.y);
 	}
 
-	function get_colliders() : ReadOnlyArray<Shape>
+	function get_colliders() : ReadOnlyArray<Collider>
 	{
 		return _colliders;
 	}
