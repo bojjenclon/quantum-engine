@@ -185,72 +185,86 @@ class Entity extends Basic implements IUpdateable implements IRenderable impleme
 	{
 		for (collider in colliders)
 		{
-			var shape = collider.shape;
-			var collidingWith = collider._collidingWith;
-
-			#if debug
-			var foundCollision = false;
-			#end
-
 			for (collideable in scene.collideables)
 			{
-				if (collideable == this)
+				checkCollisionAgainst(collider, collideable);
+
+				if (Std.is(collideable, Entity))
 				{
-					continue;
+					var collideableEntity = cast(collideable, Entity);
+					for (child in collideableEntity.children)
+					{
+						checkCollisionAgainst(collider, child);
+					}
+				}
+			}
+		}
+	}
+
+	function checkCollisionAgainst(collider : Collider, collideable : ICollideable)
+	{
+		if (collideable == this)
+		{
+			return;
+		}
+
+		var shape = collider.shape;
+		var collidingWith = collider._collidingWith;
+
+		#if debug
+		var foundCollision = false;
+		#end
+
+		var didEnter = false;
+		var didExit = false;
+
+		for (otherCollider in collideable.colliders)
+		{
+			var alreadyColliding = collidingWith.indexOf(otherCollider) > -1;
+			var other = otherCollider.shape;
+
+			var result = shape.test(other);
+			var hasCollision = result != null;
+
+			if (hasCollision)
+			{
+				#if debug
+				if (!foundCollision)
+				{
+					shape.tags.set("colliding", "colliding");
+					foundCollision = true;
+				}
+				#end
+
+				var isTrigger = shape.tags.exists("trigger");
+				if (!immobile && !isTrigger)
+				{
+					separate(result);
 				}
 
-				var didEnter = false;
-				var didExit = false;
-
-				for (otherCollider in collideable.colliders)
+				if (!alreadyColliding && !didEnter)
 				{
-					var alreadyColliding = collidingWith.indexOf(otherCollider) > -1;
-					var other = otherCollider.shape;
+					collidingWith.push(otherCollider);
 
-					var result = shape.test(other);
-					var hasCollision = result != null;
+					onCollisionEnter.dispatch(collider, otherCollider, result);
+					didEnter = true;
+				}
+			}
+			else
+			{
+				#if debug
+				if (!foundCollision)
+				{
+					shape.tags.remove("colliding");
+				}
+				#end
 
-					if (hasCollision)
-					{
-						#if debug
-						if (!foundCollision)
-						{
-							shape.tags.set("colliding", "colliding");
-							foundCollision = true;
-						}
-						#end
+				if (alreadyColliding && !didExit)
+				{
+					collidingWith.remove(otherCollider);
 
-						var isTrigger = shape.tags.exists("trigger");
-						if (!immobile && !isTrigger)
-						{
-							separate(result);
-						}
-
-						if (!alreadyColliding && !didEnter)
-						{
-							collidingWith.push(otherCollider);
-
-							onCollisionEnter.dispatch(collider, otherCollider, result);
-							didEnter = true;
-						}
-					}
-					else
-					{
-						#if debug
-						if (!foundCollision)
-						{
-							shape.tags.remove("colliding");
-						}
-						#end
-
-						if (alreadyColliding && !didExit)
-						{
-							collidingWith.remove(otherCollider);
-
-							onCollisionExit.dispatch(collider, otherCollider);
-							didExit = true;
-						}
-					}
+					onCollisionExit.dispatch(collider, otherCollider);
+					didExit = true;
 				}
 			}
 		}
