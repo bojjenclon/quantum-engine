@@ -42,4 +42,12 @@ class FSM<T>
 		state = nextState;
 		state.onEnterState(prevState);
 	}
+
+	public function update(dt : Float)
+	{
+		if (state != null)
+		{
+			state.update(dt);
+		}
+	}
 }
