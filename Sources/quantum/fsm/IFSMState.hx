@@ -5,12 +5,12 @@ interface IFSMState<T>
 {
 	public final name : String;
 
-	var _fsm : FSM<T>;
-	var _owner : T;
+	private var _fsm : FSM<T>;
+	private var _owner : T;
 
 	public function update(dt : Float) : Void;
 
-	function onEnterState(from : IFSMState<T>) : Void;
+	private function onEnterState(from : IFSMState<T>) : Void;
 
-	function onExitState(to : IFSMState<T>) : Void;
+	private function onExitState(to : IFSMState<T>) : Void;
 }
