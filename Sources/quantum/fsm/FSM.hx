@@ -16,11 +16,13 @@ class FSM<T>
 
 	public function add(stateClass : Class<IFSMState<T>>)
 	{
-		state._fsm = this;
-		state._owner = owner;
+		var newState = Type.createInstance(stateClass, []);
+
+		newState._fsm = this;
+		newState._owner = owner;
 
 		var stateName = Type.getClassName(stateClass);
-		_states.set(stateName, Type.createInstance(stateClass, []));
+		_states.set(stateName, newState);
 	}
 
 	public function goto(stateClass : Class<IFSMState<T>>)

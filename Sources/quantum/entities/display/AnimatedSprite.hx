@@ -72,15 +72,16 @@ class AnimatedSprite extends Sprite
 		}
 
 		var anim = animations[currentAnimation];
-		var totalFrames = anim.frames.length;
 
-		if (anim.finished)
+		if (anim != null && anim.finished)
 		{
 			animNeedsUpdate = false;
 		}
 
 		if (animNeedsUpdate)
 		{
+			var totalFrames = anim.frames.length;
+
 			_timeOnFrame += dt;
 			if (_timeOnFrame >= anim.speed)
 			{
