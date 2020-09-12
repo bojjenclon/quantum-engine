@@ -14,23 +14,25 @@ class FSM<T>
 		this.owner = owner;
 	}
 
-	public function add(state : IFSMState<T>)
+	public function add(stateClass : Class<IFSMState<T>>)
 	{
 		state._fsm = this;
 		state._owner = owner;
 
-		_states.set(state.name, state);
+		var stateName = Type.getClassName(stateClass);
+		_states.set(stateName, Type.createInstance(stateClass, []));
 	}
 
-	public function goto(name : String)
+	public function goto(stateClass : Class<IFSMState<T>>)
 	{
-		if (!_states.exists(name))
+		var stateName = Type.getClassName(stateClass);
+		if (!_states.exists(stateName))
 		{
 			return;
 		}
 
 		var prevState = state;
-		var nextState = _states.get(name);
+		var nextState = _states.get(stateName);
 
 		if (prevState != null)
 		{

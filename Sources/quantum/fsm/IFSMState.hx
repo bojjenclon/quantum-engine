@@ -1,6 +1,6 @@
 package quantum.fsm;
 
-@:allow(FSM)
+@:allow(quantum.fsm.FSM)
 interface IFSMState<T>
 {
 	public final name : String;
