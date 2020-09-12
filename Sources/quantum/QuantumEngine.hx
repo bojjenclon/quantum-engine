@@ -40,7 +40,7 @@ class QuantumEngine
 	#end
 
 	var _initialized : Bool = false;
-	var _fps : Float = 1 / 60;
+	var _fixedStep : Float = 0.01;
 	var _accumulator : Float = 0;
 	var _backBuffer : Image;
 	#if debug
@@ -175,7 +175,7 @@ class QuantumEngine
 
 		// https://gafferongames.com/post/fix_your_timestep/
 		_accumulator += dt;
-		while (_accumulator >= _fps)
+		while (_accumulator >= _fixedStep)
 		{
 			#if debug
 			if (input.justPressed("debugMenu"))
@@ -186,12 +186,12 @@ class QuantumEngine
 
 			if (scene != null)
 			{
-				scene.update(dt);
+				scene.update(_fixedStep);
 			}
 
 			input.update();
 
-			_accumulator -= _fps;
+			_accumulator -= _fixedStep;
 		}
 	}
 
