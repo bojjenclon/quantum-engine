@@ -218,22 +218,26 @@ class Entity extends Basic implements IUpdateable implements IRenderable impleme
 		}
 	}
 
-	public function addChild(child : Entity)
+	public function addChild(child : Entity) : Entity
 	{
 		child.parent = this;
 
 		children.push(child);
 
 		onChildAdded.dispatch(child);
+
+		return child;
 	}
 
-	public function removeChild(child : Entity)
+	public function removeChild(child : Entity) : Entity
 	{
 		child.parent = null;
 
 		children.remove(child);
 
 		onChildRemoved.dispatch(child);
+
+		return child;
 	}
 
 	override public function onAddedToScene(scene : Scene)
@@ -256,7 +260,7 @@ class Entity extends Basic implements IUpdateable implements IRenderable impleme
 		}
 	}
 
-	public function addCollider(collider : Shape)
+	public function addCollider(collider : Shape) : Shape
 	{
 		collider.data = {
 			offset: {
@@ -269,6 +273,8 @@ class Entity extends Basic implements IUpdateable implements IRenderable impleme
 		collider.y += globalY;
 
 		_colliders.push(collider);
+
+		return collider;
 	}
 
 	override public function serialize() : String
