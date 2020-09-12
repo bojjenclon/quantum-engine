@@ -3,8 +3,6 @@ package quantum.fsm;
 @:allow(quantum.fsm.FSM)
 interface IFSMState<T>
 {
-	public final name : String;
-
 	private var _fsm : FSM<T>;
 	private var _owner : T;
 
