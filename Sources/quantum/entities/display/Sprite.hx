@@ -48,7 +48,7 @@ class Sprite extends Entity
 		var engine = QuantumEngine.engine;
 		if (engine.debugDraw)
 		{
-			drawColliders(g);
+			renderDebug(g);
 		}
 		#end
 

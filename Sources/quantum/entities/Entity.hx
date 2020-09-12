@@ -109,7 +109,7 @@ class Entity extends Basic implements IUpdateable implements IRenderable impleme
 		var engine = QuantumEngine.engine;
 		if (engine.debugDraw)
 		{
-			drawColliders(g);
+			renderDebug(g);
 		}
 		#end
 
@@ -125,6 +125,11 @@ class Entity extends Basic implements IUpdateable implements IRenderable impleme
 	}
 
 	#if debug
+	function renderDebug(g : Graphics)
+	{
+		drawColliders(g);
+	}
+
 	function drawColliders(g : Graphics)
 	{
 		var shapeDrawer = KhaDrawer.drawer;
