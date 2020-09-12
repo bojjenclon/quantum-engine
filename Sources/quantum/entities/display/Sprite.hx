@@ -73,7 +73,7 @@ class Sprite extends Entity
 		}
 	}
 
-	override public function addCollider(collider : Shape)
+	override public function addCollider(collider : Shape) : Shape
 	{
 		collider.data = {
 			offset: {
@@ -86,6 +86,8 @@ class Sprite extends Entity
 		collider.y += globalY + scaledHeight / 2;
 
 		_colliders.push(collider);
+
+		return collider;
 	}
 
 	override public function serialize() : String
