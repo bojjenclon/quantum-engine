@@ -21,7 +21,8 @@ class Entity extends Basic implements IUpdateable implements IRenderable impleme
 {
 	public final onChildAdded : Signal1<Entity> = new Signal1<Entity>();
 	public final onChildRemoved : Signal1<Entity> = new Signal1<Entity>();
-	public final onCollision : Signal2<ICollideable, ShapeCollision> = new Signal2<ICollideable, ShapeCollision>();
+	public final onCollisionEnter : Signal2<ICollideable, ShapeCollision> = new Signal2<ICollideable, ShapeCollision>();
+	public final onCollisionExit : Signal1<ICollideable> = new Signal1<ICollideable>();
 
 	/**
 	 * Position relative to parent.
@@ -80,6 +81,7 @@ class Entity extends Basic implements IUpdateable implements IRenderable impleme
 	public var colliders(get, never) : ReadOnlyArray<Shape>;
 
 	var _colliders : Array<Shape> = [];
+	var _isColliding : Array<ICollideable> = [];
 
 	/**
 	 * Determines if this entity can be pushed by collisions.
@@ -195,7 +197,15 @@ class Entity extends Basic implements IUpdateable implements IRenderable impleme
 							separate(result);
 						}
 
-						onCollision.dispatch(collideable, result);
+						_isColliding.push(collideable);
+
+						onCollisionEnter.dispatch(collideable, result);
+					}
+					else if (_isColliding.indexOf(collideable) > -1)
+					{
+						_isColliding.remove(collideable);
+
+						onCollisionExit.dispatch(collideable);
 					}
 				}
 			}
