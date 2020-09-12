@@ -1,6 +1,6 @@
 package quantum.entities;
 
-import signals.Signal2;
+import signals.Signal3;
 import differ.data.ShapeCollision;
 import quantum.scene.Scene;
 import quantum.debug.KhaDrawer;
@@ -15,14 +15,15 @@ import quantum.partials.ICollideable;
 import kha.graphics2.Graphics;
 import kha.math.FastVector2;
 import kha.math.Vector2;
+import signals.Signal2;
 import signals.Signal1;
 
 class Entity extends Basic implements IUpdateable implements IRenderable implements ICollideable
 {
 	public final onChildAdded : Signal1<Entity> = new Signal1<Entity>();
 	public final onChildRemoved : Signal1<Entity> = new Signal1<Entity>();
-	public final onCollisionEnter : Signal2<ICollideable, ShapeCollision> = new Signal2<ICollideable, ShapeCollision>();
-	public final onCollisionExit : Signal1<ICollideable> = new Signal1<ICollideable>();
+	public final onCollisionEnter : Signal3<Shape, Shape, ShapeCollision> = new Signal3<Shape, Shape, ShapeCollision>();
+	public final onCollisionExit : Signal2<Shape, Shape> = new Signal2<Shape, Shape>();
 
 	/**
 	 * Position relative to parent.
@@ -141,6 +142,8 @@ class Entity extends Basic implements IUpdateable implements IRenderable impleme
 
 		for (shape in colliders)
 		{
+			var isColliding = shape.tags.exists("colliding");
+			g.color = isColliding ? Color.White : Color.Red;
 			shapeDrawer.drawShape(shape);
 		}
 
@@ -184,28 +187,50 @@ class Entity extends Basic implements IUpdateable implements IRenderable impleme
 				continue;
 			}
 
+			var alreadyColliding = _isColliding.indexOf(collideable) > -1;
+			var didEnter = false;
+			var didExit = false;
+
 			for (collider in colliders)
 			{
 				for (other in collideable.colliders)
 				{
 					var result = collider.test(other);
+					var hasCollision = result != null;
 
-					if (result != null)
+					if (hasCollision)
 					{
-						if (!immobile)
+						var isTrigger = collider.tags.exists("trigger");
+						if (!immobile && !isTrigger)
 						{
 							separate(result);
 						}
 
-						_isColliding.push(collideable);
+						if (!alreadyColliding && !didEnter)
+						{
+							#if debug
+							collider.tags.set("colliding", "colliding");
+							#end
+							
+							_isColliding.push(collideable);
 
-						onCollisionEnter.dispatch(collideable, result);
+							onCollisionEnter.dispatch(collider, other, result);
+							didEnter = true;
+						}
 					}
-					else if (_isColliding.indexOf(collideable) > -1)
+					else
 					{
-						_isColliding.remove(collideable);
+						if (alreadyColliding && !didExit)
+						{
+							#if debug
+							collider.tags.remove("colliding");
+							#end
 
-						onCollisionExit.dispatch(collideable);
+							_isColliding.remove(collideable);
+
+							onCollisionExit.dispatch(collider, other);
+							didExit = true;
+						}
 					}
 				}
 			}
@@ -273,6 +298,7 @@ class Entity extends Basic implements IUpdateable implements IRenderable impleme
 	public function addCollider(collider : Shape) : Shape
 	{
 		collider.data = {
+			owner: this,
 			offset: {
 				x: collider.x,
 				y: collider.y
@@ -285,6 +311,13 @@ class Entity extends Basic implements IUpdateable implements IRenderable impleme
 		_colliders.push(collider);
 
 		return collider;
+	}
+
+	public function addTrigger(trigger : Shape) : Shape
+	{
+		trigger.tags.set("trigger", "trigger");
+
+		return addCollider(trigger);
 	}
 
 	override public function serialize() : String

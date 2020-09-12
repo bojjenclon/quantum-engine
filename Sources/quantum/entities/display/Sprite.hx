@@ -76,6 +76,7 @@ class Sprite extends Entity
 	override public function addCollider(collider : Shape) : Shape
 	{
 		collider.data = {
+			owner: this,
 			offset: {
 				x: collider.x,
 				y: collider.y
