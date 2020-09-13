@@ -1,5 +1,6 @@
 package quantum.scene;
 
+import quantum.entities.Entity;
 import quantum.partials.ICollideable;
 import kha.graphics2.Graphics;
 import kha.Color;
@@ -72,9 +73,45 @@ class Scene
 		onChildRemoved.dispatch(child);
 	}
 
-	public function filter(predicate : (child : Basic) -> Bool) : ReadOnlyArray<Basic>
+	public function filter(predicate : (child : Basic) -> Bool, recurse : Bool = false) : ReadOnlyArray<Basic>
 	{
-		return _children.filter(predicate);
+		var filtered : Array<Basic> = new Array<Basic>();
+
+		if (recurse)
+		{
+			for (child in children)
+			{
+				filtered = filtered.concat(filterHelper(predicate, child));
+			}
+		}
+		else
+		{
+			filtered = _children.filter(predicate);
+		}
+
+		return filtered;
+	}
+
+	function filterHelper(predicate : (child : Basic) -> Bool, basic : Basic) : Array<Basic>
+	{
+		var filtered : Array<Basic> = new Array<Basic>();
+
+		if (predicate(basic))
+		{
+			filtered.push(basic);
+		}
+
+		if (Std.is(basic, Entity))
+		{
+			var entity = cast(basic, Entity);
+			
+			for (child in entity.children)
+			{
+				filtered = filtered.concat(filterHelper(predicate, child));
+			}
+		}
+
+		return filtered;
 	}
 
 	public function childrenWithTag(tag : String) : ReadOnlyArray<Basic>
