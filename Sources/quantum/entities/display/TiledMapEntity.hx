@@ -1,5 +1,6 @@
 package quantum.entities.display;
 
+import quantum.tiled.TiledTile;
 import quantum.tiled.TiledGroupLayer;
 import quantum.tiled.TiledLayer;
 import kha.math.FastMatrix3;
@@ -14,8 +15,9 @@ import quantum.tiled.TiledTileLayer;
 import quantum.tiled.TiledMap;
 import quantum.partials.IRenderable;
 
-private typedef RenderableTile =
+typedef ParsedTile =
 {
+	var tile : TiledTile;
 	var image : Image;
 	var x : Int;
 	var y : Int;
@@ -25,13 +27,17 @@ private typedef RenderableTile =
 	var tileHeight : Int;
 }
 
-private typedef RenderableTileLayer =
+typedef ParsedTileLayer =
 {
-	var tiles : Array<RenderableTile>;
+	var layer : TiledTileLayer;
+	var tiles : Array<ParsedTile>;
 }
 
 class TiledMapEntity extends Entity
 {
+	static inline final TRUE : String = "true";
+	static inline final FALSE : String = "false";
+
 	public var width(get, never) : Int;
 	public var height(get, never) : Int;
 
@@ -43,7 +49,8 @@ class TiledMapEntity extends Entity
 	var _tileLayers : Array<TiledTileLayer> = new Array<TiledTileLayer>();
 	var _objectLayers : Array<TiledObjectLayer> = new Array<TiledObjectLayer>();
 
-	var _renderableLayers : Array<RenderableTileLayer> = [];
+	var _parsedLayers : Array<ParsedTileLayer> = new Array<ParsedTileLayer>();
+	var _renderableLayers : Array<ParsedTileLayer> = new Array<ParsedTileLayer>();
 
 	static final ASSET_PATH_REGEX : EReg = ~/[\s.,\/\\]/g;
 
@@ -68,7 +75,7 @@ class TiledMapEntity extends Entity
 			var x = 0;
 			var y = 0;
 
-			var tilesToRender : Array<RenderableTile> = [];
+			var tilesToRender : Array<ParsedTile> = [];
 
 			for (tile in layer.tiles)
 			{
@@ -79,6 +86,8 @@ class TiledMapEntity extends Entity
 					var tileId = tile.tileID - tileset.firstGID;
 
 					tilesToRender.push({
+						tile: tile,
+
 						image: Assets.images.get(assetName),
 
 						x: x * tileset.tileWidth,
@@ -100,9 +109,19 @@ class TiledMapEntity extends Entity
 				}
 			}
 
-			_renderableLayers.push({
+			var parsedLayer = {
+				layer: layer,
+				
 				tiles: tilesToRender
-			});
+			};
+
+			_parsedLayers.push(parsedLayer);
+
+			var isRenderable = layer.properties.get("render") != FALSE;
+			if (isRenderable)
+			{
+				_renderableLayers.push(parsedLayer);
+			}
 		}
 	}
 
