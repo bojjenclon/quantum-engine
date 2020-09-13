@@ -8,6 +8,8 @@ import kha.internal.BytesBlob;
 import haxe.xml.Access;
 import quantum.tiled.TiledLayer.TiledLayerType;
 
+using StringTools;
+
 class TiledTileLayer extends TiledLayer
 {
 	public var x : Int;
@@ -50,9 +52,12 @@ class TiledTileLayer extends TiledLayer
 		if (encoding == "base64")
 		{
 			var chunk : String = xmlData.innerData;
-			var compressed : Bool = false;
+			var trimmedChunk = chunk
+				.replace(' ', '')
+				.replace('\n', '');
 
-			result = Base64.decode(chunk);
+			var compressed : Bool = false;
+			result = Base64.decode(trimmedChunk);
 
 			if (xmlData.has.compression)
 			{
@@ -155,7 +160,7 @@ class TiledTileLayer extends TiledLayer
 				var i = 0;
 				while (i < Std.int(mapData.length))
 				{
-					tileArray.push(resolveTile(mapData.getInt32(i)));
+					tileArray.push(resolveTile(mapData.getInt32(i++)));
 				}
 			}
 		}
