@@ -48,8 +48,8 @@ class AnimatedSprite extends Sprite
 	override function renderSelf(g : Graphics)
 	{
 		// Calculate where we are in the overall image
-		var sx = (currentFrame % _horizontalFrames) * frameWidth;
-		var sy = Math.floor(currentFrame / _horizontalFrames) * frameHeight;
+		var sx = Std.int(currentFrame % _horizontalFrames) * frameWidth;
+		var sy = Std.int(currentFrame / _horizontalFrames) * frameHeight;
 
 		g.drawScaledSubImage(_image, sx, sy, frameWidth, frameHeight, globalX, globalY, scaledWidth, scaledHeight);
 	}
@@ -132,6 +132,7 @@ class AnimatedSprite extends Sprite
 		currentFrame = anim.frames[_animFrame];
 
 		isPlaying = true;
+		anim.finished = anim.speed == 0;
 
 		onAnimationChanged.dispatch(currentAnimation);
 	}
