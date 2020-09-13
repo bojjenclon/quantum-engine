@@ -1,5 +1,6 @@
 package quantum.entities.display;
 
+import quantum.tiled.TiledObjectLayer;
 import kha.Assets;
 import kha.graphics2.Graphics;
 import kha.Image;
@@ -28,7 +29,8 @@ class TiledMapEntity extends Entity
 {
 	var _tiledMap : TiledMap;
 
-	var _tileLayers : Array<TiledTileLayer> = [];
+	var _tileLayers : Array<TiledTileLayer> = new Array<TiledTileLayer>();
+	var _objectLayers : Array<TiledObjectLayer> = new Array<TiledObjectLayer>();
 
 	var _renderableLayers : Array<RenderableTileLayer> = [];
 
@@ -40,14 +42,20 @@ class TiledMapEntity extends Entity
 
 		_tiledMap = map;
 
+		// Organize layers by type
 		for (layer in map.layers)
 		{
 			if (Std.is(layer, TiledTileLayer))
 			{
 				_tileLayers.push(cast(layer, TiledTileLayer));
 			}
+			else if (Std.is(layer, TiledObjectLayer))
+			{
+				_objectLayers.push(cast(layer, TiledObjectLayer));
+			}
 		}
 
+		// Generate renderable tiles array
 		for (layer in _tileLayers)
 		{
 			var layerWidth = layer.width;
