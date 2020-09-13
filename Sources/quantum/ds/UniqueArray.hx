@@ -66,6 +66,11 @@ class UniqueArray<V>
 		return _entries.indexOf(value) > -1;
 	}
 
+	public inline function clear() 
+	{
+		_entries = [];
+	}
+
 	public inline function join(sep : String) : String
 	{
 		return _entries.join(sep);

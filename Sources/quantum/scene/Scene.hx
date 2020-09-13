@@ -72,6 +72,11 @@ class Scene
 		onChildRemoved.dispatch(child);
 	}
 
+	public function filter(predicate : (child : Basic) -> Bool) : ReadOnlyArray<Basic>
+	{
+		return _children.filter(predicate);
+	}
+
 	public function childrenWithTag(tag : String) : ReadOnlyArray<Basic>
 	{
 		return _children.filter(function(child : Basic)

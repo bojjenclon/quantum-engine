@@ -8,7 +8,7 @@ import haxe.ds.ReadOnlyArray;
 import kha.Color;
 import kha.graphics2.Graphics;
 import kha.math.FastVector2;
-import kha.math.Vector2;
+import kha.math.FastVector2;
 import quantum.debug.KhaDrawer;
 import quantum.entities.Collider;
 import quantum.partials.ICollideable;
@@ -29,7 +29,7 @@ class Entity extends Basic implements IUpdateable implements IRenderable impleme
 	/**
 	 * Position relative to parent.
 	 */
-	public var position : Vector2 = new Vector2(0, 0);
+	public var position : FastVector2 = new FastVector2(0, 0);
 	/**
 	 * X-coord relative to parent.
 	 */
@@ -42,7 +42,7 @@ class Entity extends Basic implements IUpdateable implements IRenderable impleme
 	/**
 	 * Absolute position.
 	 */
-	public var globalPosition(get, never) : Vector2;
+	public var globalPosition(get, never) : FastVector2;
 	/**
 	 * Absolute x-coord.
 	 */
@@ -388,14 +388,14 @@ class Entity extends Basic implements IUpdateable implements IRenderable impleme
 		return position.y = value;
 	}
 
-	function get_globalPosition() : Vector2
+	function get_globalPosition() : FastVector2
 	{
 		if (parent == null)
 		{
 			return position;
 		}
 
-		return new Vector2(parent.x + x, parent.y + y);
+		return new FastVector2(parent.x + x, parent.y + y);
 	}
 
 	function get_globalX() : Float
