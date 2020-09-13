@@ -154,6 +154,7 @@ class TiledMapEntity extends Entity
 			var groupLayer = cast(layer, TiledGroupLayer);
 			for (subLayer in groupLayer.layers)
 			{
+				// Merge group layer properties into children
 				var groupProps = groupLayer.properties;
 				for (property in groupProps.keysIterator())
 				{
