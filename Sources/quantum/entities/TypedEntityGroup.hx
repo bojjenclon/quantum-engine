@@ -3,6 +3,8 @@ package quantum.entities;
 import quantum.partials.IRenderable;
 import quantum.partials.IUpdateable;
 import kha.graphics2.Graphics;
+import haxe.ds.ReadOnlyArray;
+import signals.Signal1;
 
 private class EntityGroupIterator<T:Entity>
 {
@@ -31,11 +33,16 @@ private class EntityGroupIterator<T:Entity>
  */
 class TypedEntityGroup<T:Entity> extends Basic implements IUpdateable implements IRenderable
 {
-	public var children : Array<T> = new Array<T>();
+	public final onChildAdded : Signal1<T> = new Signal1<T>();
+	public final onChildRemoved : Signal1<T> = new Signal1<T>();
+
+	public var children(get, never) : ReadOnlyArray<T>;
+
+	var _children : Array<T> = new Array<T>();
 
 	public function render(g : Graphics)
 	{
-		for (child in children)
+		for (child in _children)
 		{
 			child.render(g);
 		}
@@ -43,14 +50,37 @@ class TypedEntityGroup<T:Entity> extends Basic implements IUpdateable implements
 
 	public function update(dt : Float)
 	{
-		for (child in children)
+		for (child in _children)
 		{
 			child.update(dt);
 		}
 	}
 
+	public function addChild(child : T) : T
+	{
+		_children.push(child);
+
+		onChildAdded.dispatch(child);
+
+		return child;
+	}
+
+	public function removeChild(child : T) : T
+	{
+		_children.remove(child);
+
+		onChildRemoved.dispatch(child);
+
+		return child;
+	}
+
 	public function iterator() : EntityGroupIterator<T>
 	{
 		return new EntityGroupIterator<T>(this);
+	}
+
+	function get_children() : ReadOnlyArray<T>
+	{
+		return _children;
 	}
 }
