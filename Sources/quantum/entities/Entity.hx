@@ -149,7 +149,7 @@ class Entity extends Basic implements IUpdateable implements IRenderable impleme
 			shapeDrawer.drawShape(shape);
 		}
 
-		g.color = Color.Black;
+		g.color = Color.White;
 	}
 	#end
 

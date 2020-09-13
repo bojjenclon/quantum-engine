@@ -1,9 +1,12 @@
 package quantum.entities.display;
 
+import kha.math.FastMatrix3;
 import quantum.tiled.TiledObjectLayer;
 import kha.Assets;
 import kha.graphics2.Graphics;
 import kha.Image;
+import kha.Color;
+import kha.math.FastVector2;
 import quantum.tiled.TiledTileSet;
 import quantum.tiled.TiledTileLayer;
 import quantum.tiled.TiledMap;
@@ -27,6 +30,12 @@ private typedef RenderableTileLayer =
 
 class TiledMapEntity extends Entity
 {
+	public var width(get, never) : Int;
+	public var height(get, never) : Int;
+
+	public var scaledWidth(get, never) : Float;
+	public var scaledHeight(get, never) : Float;
+
 	var _tiledMap : TiledMap;
 
 	var _tileLayers : Array<TiledTileLayer> = new Array<TiledTileLayer>();
@@ -104,6 +113,20 @@ class TiledMapEntity extends Entity
 
 	override public function render(g : Graphics)
 	{
+		if (!visible)
+		{
+			return;
+		}
+
+		var center = new FastVector2(scaledWidth / 2, scaledHeight / 2);
+		var rad = Math.PI / 180 * trueRotation;
+
+		g.pushTransformation(FastMatrix3.scale(trueScale.x, trueScale.y));
+		g.pushRotation(rad, globalX + center.x, globalY + center.y);
+		g.pushTranslation(x, y);
+		g.pushOpacity(trueAlpha);
+		g.color = color;
+
 		for (layer in _renderableLayers)
 		{
 			for (tile in layer.tiles)
@@ -111,6 +134,12 @@ class TiledMapEntity extends Entity
 				g.drawSubImage(tile.image, tile.x, tile.y, tile.tilesetX, tile.tilesetY, tile.tileWidth, tile.tileHeight);
 			}
 		}
+
+		g.color = Color.White;
+		g.popOpacity();
+		g.popTransformation();
+		g.popTransformation();
+		g.popTransformation();
 	}
 
 	function getTileset(gid : Int) : TiledTileSet
@@ -134,5 +163,25 @@ class TiledMapEntity extends Entity
 		cleanImagePath = cleanImagePath.substring(0, extStart);
 
 		return '${rootPath}${cleanImagePath}';
+	}
+
+	function get_width() : Int
+	{
+		return _tiledMap.fullWidth;
+	}
+
+	function get_height() : Int
+	{
+		return _tiledMap.fullHeight;
+	}
+
+	function get_scaledWidth() : Float
+	{
+		return width * trueScale.x;
+	}
+
+	function get_scaledHeight() : Float
+	{
+		return height * trueScale.y;
 	}
 }
