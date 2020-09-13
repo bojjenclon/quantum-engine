@@ -1,5 +1,7 @@
 package quantum.entities.display;
 
+import quantum.tiled.TiledGroupLayer;
+import quantum.tiled.TiledLayer;
 import kha.math.FastMatrix3;
 import quantum.tiled.TiledObjectLayer;
 import kha.Assets;
@@ -54,14 +56,7 @@ class TiledMapEntity extends Entity
 		// Organize layers by type
 		for (layer in map.layers)
 		{
-			if (Std.is(layer, TiledTileLayer))
-			{
-				_tileLayers.push(cast(layer, TiledTileLayer));
-			}
-			else if (Std.is(layer, TiledObjectLayer))
-			{
-				_objectLayers.push(cast(layer, TiledObjectLayer));
-			}
+			categorizeLayer(layer);
 		}
 
 		// Generate renderable tiles array
@@ -140,6 +135,42 @@ class TiledMapEntity extends Entity
 		g.popTransformation();
 		g.popTransformation();
 		g.popTransformation();
+
+		#if debug
+		var engine = QuantumEngine.engine;
+		if (engine.debugDraw)
+		{
+			renderDebug(g);
+		}
+		#end
+
+		renderChildren(g);
+	}
+
+	function categorizeLayer(layer : TiledLayer)
+	{
+		if (Std.is(layer, TiledGroupLayer))
+		{
+			var groupLayer = cast(layer, TiledGroupLayer);
+			for (subLayer in groupLayer.layers)
+			{
+				var groupProps = groupLayer.properties;
+				for (property in groupProps.keysIterator())
+				{
+					subLayer.properties.add(property, groupProps.resolve(property));
+				}
+
+				categorizeLayer(subLayer);
+			}
+		}
+		if (Std.is(layer, TiledTileLayer))
+		{
+			_tileLayers.push(cast(layer, TiledTileLayer));
+		}
+		else if (Std.is(layer, TiledObjectLayer))
+		{
+			_objectLayers.push(cast(layer, TiledObjectLayer));
+		}
 	}
 
 	function getTileset(gid : Int) : TiledTileSet

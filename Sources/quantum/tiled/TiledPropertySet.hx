@@ -38,4 +38,9 @@ class TiledPropertySet
 			keys.set(prop.att.name, prop.att.value);
 		}
 	}
+
+	public function add(key : String, value : String)
+	{
+		keys.set(key, value);
+	}
 }

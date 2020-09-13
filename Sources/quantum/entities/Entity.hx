@@ -188,15 +188,6 @@ class Entity extends Basic implements IUpdateable implements IRenderable impleme
 			for (collideable in scene.collideables)
 			{
 				checkCollisionAgainst(collider, collideable);
-
-				if (Std.is(collideable, Entity))
-				{
-					var collideableEntity = cast(collideable, Entity);
-					for (child in collideableEntity.children)
-					{
-						checkCollisionAgainst(collider, child);
-					}
-				}
 			}
 		}
 	}
@@ -266,6 +257,16 @@ class Entity extends Basic implements IUpdateable implements IRenderable impleme
 					onCollisionExit.dispatch(collider, otherCollider);
 					didExit = true;
 				}
+			}
+		}
+
+		// Propogate down through children
+		if (Std.is(collideable, Entity))
+		{
+			var collideableEntity = cast(collideable, Entity);
+			for (child in collideableEntity.children)
+			{
+				checkCollisionAgainst(collider, child);
 			}
 		}
 	}
