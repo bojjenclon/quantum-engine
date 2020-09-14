@@ -10,6 +10,7 @@ class Timer
 	static inline final DELTA_TIME_LIST_MAX : Int = 100;
 
 	public var deltaTime(default, null) : Float;
+	public var deltaTimeAvg(get, never) : Float;
 	public var fps(default, null) : Float;
 	public var fpsAvg(get, never) : Float;
 
@@ -20,6 +21,7 @@ class Timer
 	var _fpsList : Array<Float> = [];
 
 	var _deltaTimeIndex : Int = 0;
+	var _deltaTimeSum : Float = 0;
 	var _deltaTimeList : Array<Float> = [];
 
 	public function new()
@@ -48,10 +50,15 @@ class Timer
 			}
 		}
 
-		_deltaTimeList[_deltaTimeIndex++] = deltaTime;
-		if (_deltaTimeIndex == DELTA_TIME_LIST_MAX)
+		if (deltaTime > 0) 
 		{
-			_deltaTimeIndex = 0;
+			_deltaTimeSum -= _deltaTimeList[_deltaTimeIndex];
+			_deltaTimeSum += deltaTime;
+			_deltaTimeList[_deltaTimeIndex++] = deltaTime;
+			if (_deltaTimeIndex == DELTA_TIME_LIST_MAX)
+			{
+				_deltaTimeIndex = 0;
+			}
 		}
 
 		return deltaTime;
@@ -67,10 +74,21 @@ class Timer
 		{
 			_fpsList.push(0);
 		}
+
+		_deltaTimeList = [];
+		for (_ in 0...DELTA_TIME_LIST_MAX)
+		{
+			_deltaTimeList.push(0);
+		}
 	}
 
 	function get_fpsAvg() : Float
 	{
 		return _fpsSum / FPS_LIST_MAX;
+	}
+
+	function get_deltaTimeAvg() : Float
+	{
+		return _deltaTimeSum / DELTA_TIME_LIST_MAX;
 	}
 }

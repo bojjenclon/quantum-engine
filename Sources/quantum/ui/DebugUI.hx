@@ -101,7 +101,7 @@ class DebugUI extends BaseUI
 
 		ui.text("DT:");
 
-		var deltaTimeString = '${engine.timer.deltaTime}'.substring(0, 6);
+		var deltaTimeString = '${engine.timer.deltaTimeAvg}'.substring(0, 6);
 		ui.text(deltaTimeString, Align.Right);
 
 		ui.separator(2);
