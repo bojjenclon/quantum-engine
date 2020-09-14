@@ -108,6 +108,29 @@ class Entity extends Basic implements IUpdateable implements IRenderable impleme
 	public var parent(default, set) : Entity;
 	public var children : Array<Entity> = new Array<Entity>();
 
+	public function new()
+	{
+		super();
+
+		#if debug
+		onCollisionEnter.add(function(collider : Collider, other : Collider, result : ShapeCollision)
+		{
+			if (collider._collidingWith.length == 1)
+			{
+				collider.shape.tags.set("colliding", "colliding");
+			}
+		});
+
+		onCollisionExit.add(function(collider : Collider, other : Collider)
+		{
+			if (collider._collidingWith.length == 0)
+			{
+				collider.shape.tags.remove("colliding");
+			}
+		});
+		#end
+	}
+
 	public function render(g : Graphics)
 	{
 		if (!visible)
@@ -217,10 +240,6 @@ class Entity extends Basic implements IUpdateable implements IRenderable impleme
 		var shape = collider.shape;
 		var collidingWith = collider._collidingWith;
 
-		#if debug
-		var foundCollision = false;
-		#end
-
 		var didEnter = false;
 		var didExit = false;
 
@@ -234,14 +253,6 @@ class Entity extends Basic implements IUpdateable implements IRenderable impleme
 
 			if (hasCollision)
 			{
-				#if debug
-				if (!foundCollision)
-				{
-					shape.tags.set("colliding", "colliding");
-					foundCollision = true;
-				}
-				#end
-
 				var isTrigger = shape.tags.exists("trigger");
 				if (!immobile && !isTrigger)
 				{
@@ -258,13 +269,6 @@ class Entity extends Basic implements IUpdateable implements IRenderable impleme
 			}
 			else
 			{
-				#if debug
-				if (!foundCollision)
-				{
-					shape.tags.remove("colliding");
-				}
-				#end
-
 				if (alreadyColliding && !didExit)
 				{
 					collidingWith.remove(otherCollider);
