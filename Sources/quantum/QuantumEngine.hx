@@ -1,5 +1,6 @@
 package quantum;
 
+import quantum.ui.BaseUI;
 import signals.Signal.Signal0;
 import kha.Font;
 import differ.shapes.Circle;
@@ -56,13 +57,13 @@ class QuantumEngine
 	var _winHeight : Int;
 
 	#if debug
-	var _debugFont : String;
+	var _createDebugUI : () -> Void;
 	#end
 
 	private function new() {}
 
 	#if debug
-	public function initialize(width : Int = 800, height : Int = 600, debugFont : String)
+	public function initialize(width : Int = 800, height : Int = 600, ?createDebugUI : () -> Void)
 	#else
 	public function initialize(width : Int = 800, height : Int = 600)
 	#end
@@ -71,11 +72,20 @@ class QuantumEngine
 		this.height = height;
 		
 		#if debug
-		_debugFont = debugFont;
+		_createDebugUI = createDebugUI == null ? defaultDebugUI : createDebugUI;
 		#end
 
 		Assets.loadEverything(loadingFinished);
 	}
+
+	#if debug
+	function defaultDebugUI()
+	{
+		debugUI = new DebugUI(Assets.fonts.get(DebugUI.FONT));
+
+		debugUI.onDebugDrawCheckChanged.add(onDebugDrawCheckChanged);
+	}
+	#end
 
 	function loadingFinished()
 	{
@@ -86,9 +96,7 @@ class QuantumEngine
 		timer = new Timer();
 
 		#if debug
-		debugUI = new DebugUI(Assets.fonts.get(_debugFont));
-
-		debugUI.onDebugDrawCheckChanged.add(onDebugDrawCheckChanged);
+		_createDebugUI();
 		#end
 
 		onResize(System.windowWidth(0), System.windowHeight(0));

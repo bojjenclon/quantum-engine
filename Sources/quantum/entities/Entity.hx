@@ -94,12 +94,18 @@ class Entity extends Basic implements IUpdateable implements IRenderable impleme
 	 * Determines if this entity will be updated.
 	 */
 	public var active : Bool = true;
+
 	/**
 	 * Determines if this entity will be rendered.
 	 */
 	public var visible : Bool = true;
 
-	public var parent(default, null) : Entity;
+	/**
+	 * Determines if this entity should respond to collision events.
+	 */
+	public var canCollide : Bool = true;
+
+	public var parent(default, set) : Entity;
 	public var children : Array<Entity> = new Array<Entity>();
 
 	public function render(g : Graphics)
@@ -183,6 +189,15 @@ class Entity extends Basic implements IUpdateable implements IRenderable impleme
 
 	function checkCollision()
 	{
+		if (scene == null)
+		{
+			return;
+		}
+		else if (!canCollide)
+		{
+			return;
+		}
+
 		for (collider in colliders)
 		{
 			for (collideable in scene.collideables)
@@ -194,7 +209,7 @@ class Entity extends Basic implements IUpdateable implements IRenderable impleme
 
 	function checkCollisionAgainst(collider : Collider, collideable : ICollideable)
 	{
-		if (collideable == this)
+		if (collideable == this || !collideable.canCollide)
 		{
 			return;
 		}
@@ -309,6 +324,42 @@ class Entity extends Basic implements IUpdateable implements IRenderable impleme
 		return child;
 	}
 
+	public function filter(predicate : (child : Entity) -> Bool, recurse : Bool = false) : ReadOnlyArray<Entity>
+	{
+		var filtered : Array<Entity> = new Array<Entity>();
+
+		if (recurse)
+		{
+			for (child in children)
+			{
+				filtered = filtered.concat(filterHelper(predicate, child));
+			}
+		}
+		else
+		{
+			filtered = children.filter(predicate);
+		}
+
+		return filtered;
+	}
+
+	function filterHelper(predicate : (child : Entity) -> Bool, entity : Entity) : Array<Entity>
+	{
+		var filtered : Array<Entity> = new Array<Entity>();
+
+		if (predicate(entity))
+		{
+			filtered.push(entity);
+		}
+
+		for (child in entity.children)
+		{
+			filtered = filtered.concat(filterHelper(predicate, child));
+		}
+
+		return filtered;
+	}
+
 	override public function onAddedToScene(scene : Scene)
 	{
 		super.onAddedToScene(scene);
@@ -328,6 +379,10 @@ class Entity extends Basic implements IUpdateable implements IRenderable impleme
 			child.onRemovedFromScene(scene);
 		}
 	}
+
+	public function onAddedToParent(newParent : Entity) {}
+
+	public function onRemovedFromParent(oldParent : Entity) {}
 
 	public function addCollider(shape : Shape) : Shape
 	{
@@ -405,7 +460,7 @@ class Entity extends Basic implements IUpdateable implements IRenderable impleme
 			return x;
 		}
 
-		return parent.x + x;
+		return parent.globalX + x;
 	}
 
 	function get_globalY() : Float
@@ -415,7 +470,7 @@ class Entity extends Basic implements IUpdateable implements IRenderable impleme
 			return y;
 		}
 
-		return parent.y + y;
+		return parent.globalY + y;
 	}
 
 	function set_rotation(value : Float) : Float
@@ -472,5 +527,20 @@ class Entity extends Basic implements IUpdateable implements IRenderable impleme
 	function get_colliders() : ReadOnlyArray<Collider>
 	{
 		return _colliders;
+	}
+
+	function set_parent(value : Entity) : Entity
+	{
+		if (parent != null)
+		{
+			onRemovedFromParent(parent);
+		}
+
+		if (value != null)
+		{
+			onAddedToParent(parent);
+		}
+
+		return parent = value;
 	}
 }

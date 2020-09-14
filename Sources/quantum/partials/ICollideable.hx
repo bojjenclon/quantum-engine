@@ -16,4 +16,5 @@ interface ICollideable
 	public final tags : UniqueArray<String>;
 	public var colliders(get, never) : ReadOnlyArray<Collider>;
 	public var immobile : Bool;
+	public var canCollide : Bool;
 }

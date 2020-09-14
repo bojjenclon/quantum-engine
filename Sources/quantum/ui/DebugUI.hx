@@ -10,6 +10,8 @@ import zui.Id;
 
 class DebugUI extends BaseUI
 {
+	public static var FONT : String = '_8_bit_hud';
+	
 	public var onDebugDrawCheckChanged : Signal1<Bool> = new Signal1<Bool>();
 
 	var _optionsWindow = Id.handle();
