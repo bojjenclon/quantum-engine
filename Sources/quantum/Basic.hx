@@ -10,7 +10,7 @@ class Basic implements IHashable
 {
 	public var id(default, null) : String;
 	public final tags : UniqueArray<String> = new UniqueArray<String>();
-	public var scene(default, null) : Scene;
+	public var scene(default, set) : Scene;
 
 	public function new()
 	{
@@ -39,5 +39,10 @@ class Basic implements IHashable
 	public function hash() : String
 	{
 		return Md5.encode(serialize());
+	}
+
+	function set_scene(value : Scene) : Scene
+	{
+		return scene = value;
 	}
 }
