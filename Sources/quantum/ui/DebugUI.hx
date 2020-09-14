@@ -11,7 +11,7 @@ import zui.Id;
 class DebugUI extends BaseUI
 {
 	public static var FONT : String = '_8_bit_hud';
-	
+
 	public var onDebugDrawCheckChanged : Signal1<Bool> = new Signal1<Bool>();
 
 	var _optionsWindow = Id.handle();
@@ -56,16 +56,12 @@ class DebugUI extends BaseUI
 		{
 			if (ui.panel(Id.handle({selected: true}), "UI"))
 			{
-				_showStatsWindow = ui.check(_showStatsCheck, "Show Stats");
+				drawUIPanel();
 			}
 
 			if (ui.panel(Id.handle({selected: true}), "Drawing"))
 			{
-				var debugDragValue = ui.check(_debugDrawCheck, "Debug Draw");
-				if (_debugDrawCheck.changed)
-				{
-					onDebugDrawCheckChanged.dispatch(debugDragValue);
-				}
+				drawDrawingPanel();
 			}
 		}
 
@@ -76,19 +72,40 @@ class DebugUI extends BaseUI
 			{
 				if (ui.panel(Id.handle({selected: true}), "Stats"))
 				{
-					ui.row([0.5, 0.5]);
-
-					ui.text("FPS:");
-
-					var fpsString = '${engine.timer.fpsAvg}'.substring(0, 5);
-					ui.text(fpsString, Align.Right);
-
-					ui.separator(2);
-
-					drawFPSGraph(30);
+					drawStatsPanel();
 				}
 			}
 		}
+	}
+
+	function drawUIPanel()
+	{
+		_showStatsWindow = ui.check(_showStatsCheck, "Show Stats");
+	}
+
+	function drawDrawingPanel()
+	{
+		var debugDrawValue = ui.check(_debugDrawCheck, "Debug Draw");
+		if (_debugDrawCheck.changed)
+		{
+			onDebugDrawCheckChanged.dispatch(debugDrawValue);
+		}
+	}
+
+	function drawStatsPanel()
+	{
+		var engine = QuantumEngine.engine;
+
+		ui.row([0.5, 0.5]);
+
+		ui.text("FPS:");
+
+		var fpsString = '${engine.timer.fpsAvg}'.substring(0, 5);
+		ui.text(fpsString, Align.Right);
+
+		ui.separator(2);
+
+		drawFPSGraph(30);
 	}
 
 	function drawFPSGraph(dataPoints : Int = 25, barSpace : Int = 2)

@@ -35,9 +35,9 @@ class QuantumEngine
 	public var scene(default, set) : Scene;
 
 	#if debug
-	public var debugUI(default, null) : DebugUI;
+	public var debugUI : DebugUI;
 
-	public var debugDraw(default, null) : Bool = false;
+	public var debugDraw : Bool = false;
 	#end
 
 	var _initialized : Bool = false;
@@ -67,17 +67,15 @@ class QuantumEngine
 	#else
 	public function initialize(width : Int = 800, height : Int = 600)
 	#end
+
 	{
 		this.width = width;
 		this.height = height;
-		
 		#if debug
 		_createDebugUI = createDebugUI == null ? defaultDebugUI : createDebugUI;
 		#end
-
 		Assets.loadEverything(loadingFinished);
 	}
-
 	#if debug
 	function defaultDebugUI()
 	{
