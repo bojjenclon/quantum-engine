@@ -88,7 +88,7 @@ class Entity extends Basic implements IUpdateable implements IRenderable impleme
 	/**
 	 * Determines if this entity can be pushed by collisions.
 	 */
-	public var immobile : Bool = false;
+	public var immobile(default, set) : Bool = false;
 
 	/**
 	 * Determines if this entity will be updated.
@@ -103,7 +103,7 @@ class Entity extends Basic implements IUpdateable implements IRenderable impleme
 	/**
 	 * Determines if this entity should respond to collision events.
 	 */
-	public var canCollide : Bool = true;
+	public var canCollide(default, set) : Bool = true;
 
 	/**
 	 * Determines if this entity should be added to the MapState's list of interactive objects.
@@ -565,6 +565,26 @@ class Entity extends Basic implements IUpdateable implements IRenderable impleme
 	function get_colliders() : ReadOnlyArray<Collider>
 	{
 		return _colliders;
+	}
+
+	function set_immobile(value : Bool) : Bool
+	{
+		for (child in children)
+		{
+			child.immobile = value;
+		}
+
+		return immobile = value;
+	}
+
+	function set_canCollide(value : Bool) : Bool
+	{
+		for (child in children)
+		{
+			child.canCollide = value;
+		}
+
+		return canCollide = value;
 	}
 
 	function set_parent(value : Entity) : Entity
