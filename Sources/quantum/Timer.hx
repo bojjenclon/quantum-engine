@@ -6,7 +6,8 @@ import kha.Scheduler;
 @:allow(quantum.ui.DebugUI)
 class Timer
 {
-	static final FPS_LIST_MAX : Int = 100;
+	static inline final FPS_LIST_MAX : Int = 100;
+	static inline final DELTA_TIME_LIST_MAX : Int = 100;
 
 	public var deltaTime(default, null) : Float;
 	public var fps(default, null) : Float;
@@ -17,6 +18,9 @@ class Timer
 	var _fpsIndex : Int = 0;
 	var _fpsSum : Float = 0;
 	var _fpsList : Array<Float> = [];
+
+	var _deltaTimeIndex : Int = 0;
+	var _deltaTimeList : Array<Float> = [];
 
 	public function new()
 	{
@@ -42,6 +46,12 @@ class Timer
 			{
 				_fpsIndex = 0;
 			}
+		}
+
+		_deltaTimeList[_deltaTimeIndex++] = deltaTime;
+		if (_deltaTimeIndex == DELTA_TIME_LIST_MAX)
+		{
+			_deltaTimeIndex = 0;
 		}
 
 		return deltaTime;

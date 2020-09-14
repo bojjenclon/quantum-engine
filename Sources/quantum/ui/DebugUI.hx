@@ -96,6 +96,19 @@ class DebugUI extends BaseUI
 	{
 		var engine = QuantumEngine.engine;
 
+		// Delta Time Section
+		ui.row([0.5, 0.5]);
+
+		ui.text("DT:");
+
+		var deltaTimeString = '${engine.timer.deltaTime}'.substring(0, 6);
+		ui.text(deltaTimeString, Align.Right);
+
+		ui.separator(2);
+
+		drawDeltaTimeGraph(30);
+
+		// FPS Section
 		ui.row([0.5, 0.5]);
 
 		ui.text("FPS:");
@@ -108,17 +121,57 @@ class DebugUI extends BaseUI
 		drawFPSGraph(30);
 	}
 
-	function drawFPSGraph(dataPoints : Int = 25, barSpace : Int = 2)
+	function drawDeltaTimeGraph(dataPoints : Int = 25, barSpace : Int = 2)
 	{
 		var engine = QuantumEngine.engine;
 
-		var scale = ui.SCALE();
+		var deltaTimeList = engine.timer._deltaTimeList;
+		deltaTimeList = deltaTimeList.slice(deltaTimeList.length - dataPoints);
+		var deltaTimeBars = deltaTimeList.length;
+
+		var deltaTimeGraphWidth = 170;
+		var deltaTimeBarWidth = Math.max(1, Math.floor((deltaTimeGraphWidth - (barSpace * deltaTimeBars)) / deltaTimeBars));
+
+		var deltaTimeMax = Math.NEGATIVE_INFINITY;
+		var deltaTimeMin = Math.POSITIVE_INFINITY;
+
+		for (fps in deltaTimeList)
+		{
+			if (fps > deltaTimeMax)
+			{
+				deltaTimeMax = fps;
+			}
+
+			if (fps < deltaTimeMin)
+			{
+				deltaTimeMin = fps;
+			}
+		}
+
+		var xOffset = ((deltaTimeGraphWidth - ((deltaTimeBarWidth + barSpace) * deltaTimeBars))) / 2;
+		var barX = 5 + xOffset;
+		var barY = 5;
+		var barHeight = 30;
+
+		for (deltaTime in deltaTimeList)
+		{
+			var deltaTimeHeight = barHeight * deltaTime / deltaTimeMax;
+			ui.fill(barX, barY + (barHeight - deltaTimeHeight), deltaTimeBarWidth, deltaTimeHeight, Color.Cyan);
+			barX += Math.ceil(deltaTimeBarWidth + barSpace);
+		}
+
+		ui.separator(40, false);
+	}
+
+	function drawFPSGraph(dataPoints : Int = 25, barSpace : Int = 2)
+	{
+		var engine = QuantumEngine.engine;
 
 		var fpsList = engine.timer._fpsList;
 		fpsList = fpsList.slice(fpsList.length - dataPoints);
 		var fpsBars = fpsList.length;
 
-		var fpsGraphWidth = Std.int(170 * scale);
+		var fpsGraphWidth = 170;
 		var fpsBarWidth = Math.max(1, Math.floor((fpsGraphWidth - (barSpace * fpsBars)) / fpsBars));
 
 		var fpsMax = Math.NEGATIVE_INFINITY;
