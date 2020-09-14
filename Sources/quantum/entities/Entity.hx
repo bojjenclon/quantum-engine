@@ -105,6 +105,11 @@ class Entity extends Basic implements IUpdateable implements IRenderable impleme
 	 */
 	public var canCollide : Bool = true;
 
+	/**
+	 * Determines if this entity should be added to the MapState's list of interactive objects.
+	 */
+	public var isInteractive : Bool = false;
+
 	public var parent(default, set) : Entity;
 	public var children : Array<Entity> = new Array<Entity>();
 
@@ -190,7 +195,7 @@ class Entity extends Basic implements IUpdateable implements IRenderable impleme
 		}
 
 		syncColliders();
-		checkCollision();
+		checkCollisionAgainstScene();
 
 		updateChildren(dt);
 	}
@@ -210,7 +215,19 @@ class Entity extends Basic implements IUpdateable implements IRenderable impleme
 		}
 	}
 
-	function checkCollision()
+	public function checkCollision(collideables : ReadOnlyArray<ICollideable>,
+			?response : (collider : Collider, otherCollider : Collider, result : ShapeCollision) -> Void)
+	{
+		for (collider in colliders)
+		{
+			for (collideable in collideables)
+			{
+				checkCollisionAgainst(collider, collideable, response);
+			}
+		}
+	}
+
+	function checkCollisionAgainstScene()
 	{
 		if (scene == null)
 		{
@@ -221,16 +238,14 @@ class Entity extends Basic implements IUpdateable implements IRenderable impleme
 			return;
 		}
 
-		for (collider in colliders)
-		{
-			for (collideable in scene.collideables)
-			{
-				checkCollisionAgainst(collider, collideable);
-			}
-		}
+		checkCollision(scene.collideables);
 	}
 
-	function checkCollisionAgainst(collider : Collider, collideable : ICollideable)
+	var _didEnter : Bool = false;
+	var _didExit : Bool = false;
+
+	function checkCollisionAgainst(collider : Collider, collideable : ICollideable,
+			?response : (collider : Collider, otherCollider : Collider, result : ShapeCollision) -> Void)
 	{
 		if (collideable == this || !collideable.canCollide)
 		{
@@ -238,44 +253,22 @@ class Entity extends Basic implements IUpdateable implements IRenderable impleme
 		}
 
 		var shape = collider.shape;
-		var collidingWith = collider._collidingWith;
 
-		var didEnter = false;
-		var didExit = false;
+		_didEnter = false;
+		_didExit = false;
 
 		for (otherCollider in collideable.colliders)
 		{
-			var alreadyColliding = collidingWith.indexOf(otherCollider) > -1;
 			var other = otherCollider.shape;
-
 			var result = shape.test(other);
-			var hasCollision = result != null;
 
-			if (hasCollision)
+			if (response == null)
 			{
-				var isTrigger = shape.tags.exists("trigger");
-				if (!immobile && !isTrigger)
-				{
-					separate(result);
-				}
-
-				if (!alreadyColliding && !didEnter)
-				{
-					collidingWith.push(otherCollider);
-
-					onCollisionEnter.dispatch(collider, otherCollider, result);
-					didEnter = true;
-				}
+				collisionResponse(collider, otherCollider, result);
 			}
 			else
 			{
-				if (alreadyColliding && !didExit)
-				{
-					collidingWith.remove(otherCollider);
-
-					onCollisionExit.dispatch(collider, otherCollider);
-					didExit = true;
-				}
+				response(collider, otherCollider, result);
 			}
 		}
 
@@ -285,7 +278,46 @@ class Entity extends Basic implements IUpdateable implements IRenderable impleme
 			var collideableEntity = cast(collideable, Entity);
 			for (child in collideableEntity.children)
 			{
-				checkCollisionAgainst(collider, child);
+				checkCollisionAgainst(collider, child, response);
+			}
+		}
+	}
+
+	function collisionResponse(collider : Collider, otherCollider : Collider, result : ShapeCollision)
+	{
+		var hasCollision = result != null;
+		var collidingWith = collider._collidingWith;
+		var alreadyColliding = collidingWith.indexOf(otherCollider) > -1;
+
+		if (hasCollision)
+		{
+			var shape = collider.shape;
+			var otherShape = otherCollider.shape;
+
+			var isTrigger = shape.tags.exists("trigger");
+			var isOtherTrigger = otherShape.tags.exists("trigger");
+
+			if (!immobile && !isTrigger && !isOtherTrigger)
+			{
+				separate(result);
+			}
+
+			if (!alreadyColliding && !_didEnter)
+			{
+				collidingWith.push(otherCollider);
+
+				onCollisionEnter.dispatch(collider, otherCollider, result);
+				_didEnter = true;
+			}
+		}
+		else
+		{
+			if (alreadyColliding && !_didExit)
+			{
+				collidingWith.remove(otherCollider);
+
+				onCollisionExit.dispatch(collider, otherCollider);
+				_didExit = true;
 			}
 		}
 	}
@@ -412,6 +444,8 @@ class Entity extends Basic implements IUpdateable implements IRenderable impleme
 
 		return addCollider(trigger);
 	}
+
+	public function interact() {}
 
 	override public function serialize() : String
 	{
