@@ -1,5 +1,6 @@
 package quantum;
 
+import kha.input.Mouse;
 import kha.input.Keyboard;
 import kha.input.KeyCode;
 import quantum.ds.UniqueArray;
@@ -10,11 +11,19 @@ class Input
 {
 	public static final instance : Input = new Input();
 
-	var _mappings : StringMap<UniqueArray<KeyCode>> = new StringMap<UniqueArray<KeyCode>>();
+	public var mouseX(default, null) : Int = 0;
+	public var mouseY(default, null) : Int = 0;
+
+	var _keyMappings : StringMap<UniqueArray<KeyCode>> = new StringMap<UniqueArray<KeyCode>>();
+	var _mouseMappings : StringMap<UniqueArray<Int>> = new StringMap<UniqueArray<Int>>();
 
 	var _pressedKeys : Map<KeyCode, Bool> = new Map<KeyCode, Bool>();
 	var _releasedKeys : Map<KeyCode, Bool> = new Map<KeyCode, Bool>();
 	var _downKeys : Map<KeyCode, Float> = new Map<KeyCode, Float>();
+
+	var _pressedMouse : Map<Int, Bool> = new Map<Int, Bool>();
+	var _releasedMouse : Map<Int, Bool> = new Map<Int, Bool>();
+	var _downMouse : Map<Int, Float> = new Map<Int, Float>();
 
 	private function new() {}
 
@@ -22,64 +31,104 @@ class Input
 	{
 		var keyboard = Keyboard.get();
 		keyboard.notify(onKeyDown, onKeyUp);
+
+		var mouse = Mouse.get();
+		mouse.notify(onMouseDown, onMouseUp, onMouseMove, onMouseWheel);
 	}
 
 	public function update(dt : Float)
 	{
-		for (key in _pressedKeys.keys())
-		{
-			_pressedKeys.remove(key);
-		}
+		_pressedKeys.clear();
 
 		for (key in _downKeys.keys())
 		{
 			_downKeys[key] += dt;
 		}
 
-		for (key in _releasedKeys.keys())
-		{
-			_releasedKeys.remove(key);
-		}
+		_releasedKeys.clear();
 	}
 
-	public function register(name : String, key : KeyCode)
+	public function registerKey(name : String, key : KeyCode)
 	{
-		if (!_mappings.exists(name))
+		if (!_keyMappings.exists(name))
 		{
-			_mappings.set(name, new UniqueArray<KeyCode>());
+			_keyMappings.set(name, new UniqueArray<KeyCode>());
 		}
 
-		var map = _mappings.get(name);
+		var map = _keyMappings.get(name);
 		map.add(key);
 	}
 
-	public function unregister(name : String, key : KeyCode)
+	public function unregisterKey(name : String, key : KeyCode)
 	{
-		if (!_mappings.exists(name))
+		if (!_keyMappings.exists(name))
 		{
 			return;
 		}
 
-		var map = _mappings.get(name);
+		var map = _keyMappings.get(name);
 		map.remove(key);
+	}
+
+	public function registerMouseButton(name : String, button : Int)
+	{
+		if (!_mouseMappings.exists(name))
+		{
+			_keyMappings.set(name, new UniqueArray<KeyCode>());
+		}
+
+		var map = _mouseMappings.get(name);
+		map.add(button);
+	}
+
+	public function unregisterMouseButton(name : String, button : Int)
+	{
+		if (!_mouseMappings.exists(name))
+		{
+			return;
+		}
+
+		var map = _mouseMappings.get(name);
+		map.remove(button);
 	}
 
 	public function isDown(name : String, duration : Float = -1) : Bool
 	{
-		if (!_mappings.exists(name))
+		var hasKeyMap = _keyMappings.exists(name);
+		var hasMouseMap = _mouseMappings.exists(name);
+
+		if (!hasKeyMap && !hasMouseMap)
 		{
 			return false;
 		}
 
-		var map = _mappings.get(name);
-		for (code in map)
+		if (hasKeyMap)
 		{
-			var isKeyDown = _downKeys.exists(code);
-			var downLongEnough = isKeyDown && (duration == -1 || _downKeys[code] > duration);
-
-			if (downLongEnough)
+			var keyMap = _keyMappings.get(name);
+			for (code in keyMap)
 			{
-				return true;
+				var isKeyDown = _downKeys.exists(code);
+				var downLongEnough = isKeyDown && (duration == -1 || _downKeys[code] > duration);
+
+				if (downLongEnough)
+				{
+					return true;
+				}
+			}
+		}
+
+		if (hasMouseMap)
+		{
+			var mouseMap = _mouseMappings.get(name);
+			for (button in mouseMap)
+			{
+				var isButtonDown = _downMouse.exists(button);
+				var downLongEnough = isButtonDown && (duration == -1 || _downMouse[button] > duration);
+
+				if (downLongEnough)
+				{
+					return true;
+				}
 			}
 		}
 
@@ -88,17 +137,35 @@ class Input
 
 	public function justPressed(name : String)
 	{
-		if (!_mappings.exists(name))
+		var hasKeyMap = _keyMappings.exists(name);
+		var hasMouseMap = _mouseMappings.exists(name);
+
+		if (!hasKeyMap && !hasMouseMap)
 		{
 			return false;
 		}
 
-		var map = _mappings.get(name);
-		for (code in map)
+		if (hasKeyMap)
 		{
-			if (_pressedKeys.exists(code))
+			var keyMap = _keyMappings.get(name);
+			for (code in keyMap)
 			{
-				return true;
+				if (_pressedKeys.exists(code))
+				{
+					return true;
+				}
+			}
+		}
+
+		if (hasMouseMap)
+		{
+			var mouseMap = _mouseMappings.get(name);
+			for (button in mouseMap)
+			{
+				if (_pressedMouse.exists(button))
+				{
+					return true;
+				}
 			}
 		}
 
@@ -107,17 +174,35 @@ class Input
 
 	public function justReleased(name : String)
 	{
-		if (!_mappings.exists(name))
+		var hasKeyMap = _keyMappings.exists(name);
+		var hasMouseMap = _mouseMappings.exists(name);
+
+		if (!hasKeyMap && !hasMouseMap)
 		{
 			return false;
 		}
 
-		var map = _mappings.get(name);
-		for (code in map)
+		if (hasKeyMap)
 		{
-			if (_releasedKeys.exists(code))
+			var keyMap = _keyMappings.get(name);
+			for (code in keyMap)
 			{
-				return true;
+				if (_releasedKeys.exists(code))
+				{
+					return true;
+				}
+			}
+		}
+
+		if (hasMouseMap)
+		{
+			var mouseMap = _mouseMappings.get(name);
+			for (button in mouseMap)
+			{
+				if (_releasedMouse.exists(button))
+				{
+					return true;
+				}
 			}
 		}
 
@@ -126,12 +211,35 @@ class Input
 
 	public function downDuration(name : String) : Float
 	{
-		var map = _mappings.get(name);
-		for (code in map)
+		var hasKeyMap = _keyMappings.exists(name);
+		var hasMouseMap = _mouseMappings.exists(name);
+
+		if (!hasKeyMap && !hasMouseMap)
 		{
-			if (_downKeys.exists(code))
+			return -1;
+		}
+
+		if (hasKeyMap)
+		{
+			var keyMap = _keyMappings.get(name);
+			for (code in keyMap)
 			{
-				return _downKeys[code];
+				if (_downKeys.exists(code))
+				{
+					return _downKeys[code];
+				}
+			}
+		}
+
+		if (hasMouseMap)
+		{
+			var mouseMap = _mouseMappings.get(name);
+			for (button in mouseMap)
+			{
+				if (_downMouse.exists(button))
+				{
+					return _downMouse[button];
+				}
 			}
 		}
 
@@ -150,4 +258,31 @@ class Input
 		_downKeys.remove(code);
 		_releasedKeys.set(code, true);
 	}
+
+	function onMouseDown(button : Int, x : Int, y : Int)
+	{
+		mouseX = x;
+		mouseY = y;
+
+		_pressedMouse.set(button, true);
+		_downMouse.set(button, 0);
+	}
+
+	function onMouseUp(button : Int, x : Int, y : Int)
+	{
+		mouseX = x;
+		mouseY = y;
+
+		_pressedMouse.remove(button);
+		_downMouse.remove(button);
+		_releasedMouse.set(button, true);
+	}
+
+	function onMouseMove(x : Int, y : Int, moveX : Int, moveY : Int)
+	{
+		mouseX = x;
+		mouseY = y;
+	}
+
+	function onMouseWheel(delta : Float) {}
 }

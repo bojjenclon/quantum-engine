@@ -103,7 +103,7 @@ class QuantumEngine
 		input.initialize();
 
 		#if debug
-		input.register("debugMenu", KeyCode.BackQuote);
+		input.registerKey("debugMenu", KeyCode.BackQuote);
 		#end
 
 		// Doesn't currently work for all targets, so
