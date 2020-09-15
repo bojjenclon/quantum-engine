@@ -18,12 +18,23 @@ class Scene
 	public var children(get, never) : ReadOnlyArray<Basic>;
 	public var collideables(get, never) : ReadOnlyArray<ICollideable>;
 
-	final _children : Array<Basic> = new Array<Basic>();
-	final _renderables : Array<IRenderable> = new Array<IRenderable>();
-	final _updateables : Array<IUpdateable> = new Array<IUpdateable>();
-	final _collideables : Array<ICollideable> = new Array<ICollideable>();
+	var _children : Array<Basic>;
+	var _renderables : Array<IRenderable>;
+	var _updateables : Array<IUpdateable>;
+	var _collideables : Array<ICollideable>;
 
-	public function new() {}
+	public function new()
+	{
+		create();
+	}
+
+	function create()
+	{
+		_children = new Array<Basic>();
+		_renderables = new Array<IRenderable>();
+		_updateables = new Array<IUpdateable>();
+		_collideables = new Array<ICollideable>();
+	}
 
 	public function addChild(child : Basic)
 	{
@@ -73,6 +84,18 @@ class Scene
 		onChildRemoved.dispatch(child);
 	}
 
+	public function reset()
+	{
+		var child = _children.pop();
+		while (child != null)
+		{
+			onChildRemoved.dispatch(child);
+			child = _children.pop();
+		}
+
+		create();
+	}
+
 	public function filter(predicate : (child : Basic) -> Bool, recurse : Bool = false) : ReadOnlyArray<Basic>
 	{
 		var filtered : Array<Basic> = new Array<Basic>();
@@ -104,7 +127,7 @@ class Scene
 		if (Std.is(basic, Entity))
 		{
 			var entity = cast(basic, Entity);
-			
+
 			for (child in entity.children)
 			{
 				filtered = filtered.concat(filterHelper(predicate, child));

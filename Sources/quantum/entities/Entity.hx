@@ -360,6 +360,16 @@ class Entity extends Basic implements IUpdateable implements IRenderable impleme
 		return child;
 	}
 
+	public function clear()
+	{
+		var child = children.pop();
+		while (child != null)
+		{
+			onChildRemoved.dispatch(child);
+			child = children.pop();
+		}
+	}
+
 	public function filter(predicate : (child : Entity) -> Bool, recurse : Bool = false) : ReadOnlyArray<Entity>
 	{
 		var filtered : Array<Entity> = new Array<Entity>();

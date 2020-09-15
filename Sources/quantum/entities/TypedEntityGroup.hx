@@ -74,6 +74,16 @@ class TypedEntityGroup<T:Entity> extends Basic implements IUpdateable implements
 		return child;
 	}
 
+	public function clear()
+	{
+		var child = _children.pop();
+		while (child != null)
+		{
+			onChildRemoved.dispatch(child);
+			child = _children.pop();
+		}
+	}
+
 	public function iterator() : EntityGroupIterator<T>
 	{
 		return new EntityGroupIterator<T>(this);
