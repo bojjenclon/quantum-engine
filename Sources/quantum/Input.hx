@@ -53,7 +53,7 @@ class Input
 
 		for (button in _downMouse.keys())
 		{
-			_downMouse[key] += dt;
+			_downMouse[button] += dt;
 		}
 
 		_releasedMouse.clear();
