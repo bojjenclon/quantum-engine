@@ -38,6 +38,7 @@ class Input
 
 	public function update(dt : Float)
 	{
+		// Key Management
 		_pressedKeys.clear();
 
 		for (key in _downKeys.keys())
@@ -46,6 +47,16 @@ class Input
 		}
 
 		_releasedKeys.clear();
+
+		// Mouse Management
+		_pressedMouse.clear();
+
+		for (button in _downMouse.keys())
+		{
+			_downMouse[key] += dt;
+		}
+
+		_releasedMouse.clear();
 	}
 
 	public function registerKey(name : String, key : KeyCode)
