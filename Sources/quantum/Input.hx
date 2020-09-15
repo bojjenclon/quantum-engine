@@ -5,20 +5,16 @@ import kha.input.KeyCode;
 import quantum.ds.UniqueArray;
 import haxe.ds.StringMap;
 
-enum KeyState
-{
-	Up;
-	Down;
-}
-
+// Based on https://github.com/Nazariglez/Gecko2D/blob/master/Sources/gecko/input/Keyboard.hx
 class Input
 {
 	public static final instance : Input = new Input();
 
 	var _mappings : StringMap<UniqueArray<KeyCode>> = new StringMap<UniqueArray<KeyCode>>();
 
-	var _keyState : Map<KeyCode, KeyState> = new Map<KeyCode, KeyState>();
-	var _previousKeyState : Map<KeyCode, KeyState> = new Map<KeyCode, KeyState>();
+	var _pressedKeys : Map<KeyCode, Bool> = new Map<KeyCode, Bool>();
+	var _releasedKeys : Map<KeyCode, Bool> = new Map<KeyCode, Bool>();
+	var _downKeys : Map<KeyCode, Float> = new Map<KeyCode, Float>();
 
 	private function new() {}
 
@@ -28,9 +24,22 @@ class Input
 		keyboard.notify(onKeyDown, onKeyUp);
 	}
 
-	public function update()
+	public function update(dt : Float)
 	{
-		_previousKeyState = _keyState.copy();
+		for (key in _pressedKeys.keys())
+		{
+			_pressedKeys.remove(key);
+		}
+
+		for (key in _downKeys.keys())
+		{
+			_downKeys[key] += dt;
+		}
+
+		for (key in _releasedKeys.keys())
+		{
+			_releasedKeys.remove(key);
+		}
 	}
 
 	public function register(name : String, key : KeyCode)
@@ -55,7 +64,7 @@ class Input
 		map.remove(key);
 	}
 
-	public function isDown(name : String) : Bool
+	public function isDown(name : String, duration : Float = -1) : Bool
 	{
 		if (!_mappings.exists(name))
 		{
@@ -65,7 +74,10 @@ class Input
 		var map = _mappings.get(name);
 		for (code in map)
 		{
-			if (_keyState[code] == KeyState.Down)
+			var isKeyDown = _downKeys.exists(code);
+			var downLongEnough = isKeyDown && (duration == -1 || _downKeys[code] > duration);
+
+			if (downLongEnough)
 			{
 				return true;
 			}
@@ -84,7 +96,7 @@ class Input
 		var map = _mappings.get(name);
 		for (code in map)
 		{
-			if (_keyState[code] == KeyState.Up && _previousKeyState[code] == KeyState.Down)
+			if (_pressedKeys.exists(code))
 			{
 				return true;
 			}
@@ -93,7 +105,7 @@ class Input
 		return false;
 	}
 
-	public function isUp(name : String) : Bool
+	public function justReleased(name : String)
 	{
 		if (!_mappings.exists(name))
 		{
@@ -103,7 +115,7 @@ class Input
 		var map = _mappings.get(name);
 		for (code in map)
 		{
-			if (_keyState[code] == KeyState.Up)
+			if (_releasedKeys.exists(code))
 			{
 				return true;
 			}
@@ -112,15 +124,30 @@ class Input
 		return false;
 	}
 
+	public function downDuration(name : String) : Float
+	{
+		var map = _mappings.get(name);
+		for (code in map)
+		{
+			if (_downKeys.exists(code))
+			{
+				return _downKeys[code];
+			}
+		}
+
+		return -1;
+	}
+
 	function onKeyDown(code : KeyCode)
 	{
-		_previousKeyState[code] = _keyState[code];
-		_keyState[code] = KeyState.Down;
+		_pressedKeys.set(code, true);
+		_downKeys.set(code, 0);
 	}
 
 	function onKeyUp(code : KeyCode)
 	{
-		_previousKeyState[code] = _keyState[code];
-		_keyState[code] = KeyState.Up;
+		_pressedKeys.remove(code);
+		_downKeys.remove(code);
+		_releasedKeys.set(code, true);
 	}
 }

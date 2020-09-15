@@ -195,7 +195,7 @@ class QuantumEngine
 				scene.update(_fixedStep);
 			}
 
-			input.update();
+			input.update(_fixedStep);
 
 			_accumulator -= _fixedStep;
 		}
