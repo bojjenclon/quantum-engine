@@ -85,7 +85,7 @@ class Input
 	{
 		if (!_mouseMappings.exists(name))
 		{
-			_keyMappings.set(name, new UniqueArray<KeyCode>());
+			_mouseMappings.set(name, new UniqueArray<Int>());
 		}
 
 		var map = _mouseMappings.get(name);
@@ -131,6 +131,7 @@ class Input
 		if (hasMouseMap)
 		{
 			var mouseMap = _mouseMappings.get(name);
+			trace(mouseMap);
 			for (button in mouseMap)
 			{
 				var isButtonDown = _downMouse.exists(button);
