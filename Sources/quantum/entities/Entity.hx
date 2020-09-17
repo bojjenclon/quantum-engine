@@ -1,5 +1,6 @@
 package quantum.entities;
 
+import kha.FastFloat;
 import differ.data.ShapeCollision;
 import differ.shapes.Circle;
 import differ.shapes.Polygon;
@@ -63,7 +64,9 @@ class Entity extends Basic implements IUpdateable implements IRenderable impleme
 	/**
 	 * This entity's scale, independent of the parent's.
 	 */
-	public var scale : FastVector2 = new FastVector2(1, 1);
+	public var scale(default, set) : FastVector2 = new FastVector2(1, 1);
+	public var scaleX(get, set) : FastFloat;
+	public var scaleY(get, set) : FastFloat;
 
 	/**
 	 * Rotation relative to parent.
@@ -84,6 +87,7 @@ class Entity extends Basic implements IUpdateable implements IRenderable impleme
 
 	var _colliders : Array<Collider> = [];
 	var _isColliding : Array<ICollideable> = [];
+	var _isDirty : Bool = false;
 
 	/**
 	 * Determines if this entity can be pushed by collisions.
@@ -202,6 +206,13 @@ class Entity extends Basic implements IUpdateable implements IRenderable impleme
 
 	function syncColliders()
 	{
+		// Modifying properties on a Shape causes its entire transform
+		// to be refreshed, so we only want to do this when necessary.
+		if (!_isDirty)
+		{
+			return;
+		}
+
 		for (collider in _colliders)
 		{
 			var shape = collider.shape;
@@ -213,6 +224,8 @@ class Entity extends Basic implements IUpdateable implements IRenderable impleme
 			shape.scaleY = trueScale.y;
 			shape.rotation = trueRotation;
 		}
+
+		_isDirty = false;
 	}
 
 	public function checkCollision(collideables : ReadOnlyArray<ICollideable>,
@@ -478,6 +491,8 @@ class Entity extends Basic implements IUpdateable implements IRenderable impleme
 
 	function set_x(value : Float) : Float
 	{
+		_isDirty = true;
+
 		return position.x = value;
 	}
 
@@ -488,6 +503,8 @@ class Entity extends Basic implements IUpdateable implements IRenderable impleme
 
 	function set_y(value : Float) : Float
 	{
+		_isDirty = true;
+
 		return position.y = value;
 	}
 
@@ -523,6 +540,8 @@ class Entity extends Basic implements IUpdateable implements IRenderable impleme
 
 	function set_rotation(value : Float) : Float
 	{
+		_isDirty = true;
+
 		return rotation = value % 360;
 	}
 
@@ -540,6 +559,37 @@ class Entity extends Basic implements IUpdateable implements IRenderable impleme
 		}
 
 		return alpha;
+	}
+
+	function set_scale(value : FastVector2) : FastVector2
+	{
+		_isDirty = true;
+		
+		return scale = value;
+	}
+
+	function get_scaleX() : FastFloat
+	{
+		return scale.x;
+	}
+
+	function set_scaleX(x : FastFloat) : FastFloat
+	{
+		_isDirty = true;
+
+		return scale.x = x;
+	}
+
+	function get_scaleY() : FastFloat
+	{
+		return scale.y;
+	}
+
+	function set_scaleY(y : FastFloat) : FastFloat
+	{
+		_isDirty = true;
+
+		return scale.y = y;
 	}
 
 	function get_trueRotation() : Float

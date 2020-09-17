@@ -62,6 +62,11 @@ class Sprite extends Entity
 
 	override function syncColliders()
 	{
+		if (!_isDirty)
+		{
+			return;
+		}
+		
 		super.syncColliders();
 
 		for (collider in _colliders)
