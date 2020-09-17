@@ -87,7 +87,7 @@ class Entity extends Basic implements IUpdateable implements IRenderable impleme
 
 	var _colliders : Array<Collider> = [];
 	var _isColliding : Array<ICollideable> = [];
-	var _isDirty : Bool = false;
+	var _isDirty : Bool = true;
 
 	/**
 	 * Determines if this entity can be pushed by collisions.
@@ -564,7 +564,7 @@ class Entity extends Basic implements IUpdateable implements IRenderable impleme
 	function set_scale(value : FastVector2) : FastVector2
 	{
 		_isDirty = true;
-		
+
 		return scale = value;
 	}
 
