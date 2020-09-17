@@ -353,7 +353,7 @@ class Entity extends Basic implements IUpdateable implements IRenderable impleme
 
 	function childSort(a : Entity, b : Entity) : Int
 	{
-		return b.priority - a.priority;
+		return a.priority - b.priority;
 	}
 
 	public function addChild(child : Entity) : Entity

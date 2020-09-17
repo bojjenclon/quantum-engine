@@ -38,22 +38,22 @@ class Scene
 
 	function childSort(a : Basic, b : Basic) : Int
 	{
-		return b.priority - a.priority;
+		return a.priority - b.priority;
 	}
 
 	function renderableSort(a : IRenderable, b : IRenderable) : Int
 	{
-		return b.priority - a.priority;
+		return a.priority - b.priority;
 	}
 
 	function updateableSort(a : IUpdateable, b : IUpdateable) : Int
 	{
-		return b.priority - a.priority;
+		return a.priority - b.priority;
 	}
 
 	function collideableSort(a : ICollideable, b : ICollideable) : Int
 	{
-		return b.priority - a.priority;
+		return a.priority - b.priority;
 	}
 
 	public function addChild(child : Basic)
