@@ -9,7 +9,9 @@ import uuid.Uuid;
 class Basic implements IHashable
 {
 	public var id(default, null) : String;
+	public var priority : Int = 0;
 	public final tags : UniqueArray<String> = new UniqueArray<String>();
+	
 	public var scene(default, set) : Scene;
 
 	public function new()

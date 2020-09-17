@@ -56,9 +56,15 @@ class TypedEntityGroup<T:Entity> extends Basic implements IUpdateable implements
 		}
 	}
 
+	function childSort(a : Entity, b : Entity) : Int
+	{
+		return a.priority - b.priority;
+	}
+
 	public function addChild(child : T) : T
 	{
 		_children.push(child);
+		_children.sort(childSort);
 
 		onChildAdded.dispatch(child);
 
@@ -68,6 +74,7 @@ class TypedEntityGroup<T:Entity> extends Basic implements IUpdateable implements
 	public function removeChild(child : T) : T
 	{
 		_children.remove(child);
+		_children.sort(childSort);
 
 		onChildRemoved.dispatch(child);
 

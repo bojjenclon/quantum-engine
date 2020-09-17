@@ -351,11 +351,17 @@ class Entity extends Basic implements IUpdateable implements IRenderable impleme
 		}
 	}
 
+	function childSort(a : Entity, b : Entity) : Int
+	{
+		return a.priority - b.priority;
+	}
+
 	public function addChild(child : Entity) : Entity
 	{
 		child.parent = this;
 
 		children.push(child);
+		children.sort(childSort);
 
 		onChildAdded.dispatch(child);
 
@@ -367,6 +373,7 @@ class Entity extends Basic implements IUpdateable implements IRenderable impleme
 		child.parent = null;
 
 		children.remove(child);
+		children.sort(childSort);
 
 		onChildRemoved.dispatch(child);
 

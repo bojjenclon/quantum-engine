@@ -36,23 +36,47 @@ class Scene
 		_collideables = new Array<ICollideable>();
 	}
 
+	function childSort(a : Basic, b : Basic) : Int
+	{
+		return a.priority - b.priority;
+	}
+
+	function renderableSort(a : IRenderable, b : IRenderable) : Int
+	{
+		return a.priority - b.priority;
+	}
+
+	function updateableSort(a : IUpdateable, b : IUpdateable) : Int
+	{
+		return a.priority - b.priority;
+	}
+
+	function collideableSort(a : ICollideable, b : ICollideable) : Int
+	{
+		return a.priority - b.priority;
+	}
+
 	public function addChild(child : Basic)
 	{
 		_children.push(child);
+		_children.sort(childSort);
 
 		if (Std.is(child, IRenderable))
 		{
 			_renderables.push(cast(child, IRenderable));
+			_renderables.sort(renderableSort);
 		}
 
 		if (Std.is(child, IUpdateable))
 		{
 			_updateables.push(cast(child, IUpdateable));
+			_updateables.sort(updateableSort);
 		}
 
 		if (Std.is(child, ICollideable))
 		{
 			_collideables.push(cast(child, ICollideable));
+			_collideables.sort(collideableSort);
 		}
 
 		child.onAddedToScene(this);
@@ -67,16 +91,19 @@ class Scene
 		if (Std.is(child, IRenderable))
 		{
 			_renderables.remove(cast(child, IRenderable));
+			_renderables.sort(renderableSort);
 		}
 
 		if (Std.is(child, IUpdateable))
 		{
 			_updateables.remove(cast(child, IUpdateable));
+			_updateables.sort(updateableSort);
 		}
 
 		if (Std.is(child, ICollideable))
 		{
 			_collideables.remove(cast(child, ICollideable));
+			_collideables.sort(collideableSort);
 		}
 
 		child.onRemovedFromScene(this);
